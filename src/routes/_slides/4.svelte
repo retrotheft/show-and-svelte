@@ -11,7 +11,6 @@
 <div id="code" data-inset="0">
    <!-- Hello there -->
    <CodeEditor bind:code language="javascript" template="js" />
-
 </div>
 
 <style>

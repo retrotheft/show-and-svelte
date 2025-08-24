@@ -86,6 +86,7 @@ export function transferStylesToMarks(
          element.style.display = "contents"
          // element.style.position = "absolute"
          for (const key in element.dataset) {
+            // @ts-expect-error 7015
             if (key in element.style) element.style[key] = element.dataset[key]
          }
          // element.style.visibility = "visible"

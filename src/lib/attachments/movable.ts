@@ -1,5 +1,5 @@
 import { createAttachmentKey, type Attachment } from 'svelte/attachments';
-import { stageState } from '$lib/components/Stage.svelte'
+// import { stageState } from '$lib/components/Stage.svelte'
 
 interface StoreContract<T> {
    subscribe: (callback: (value: T) => void) => () => void;
@@ -22,7 +22,7 @@ type DollarStoreAttachment = {
    [key: symbol]: Attachment;
 } & StoreContract<MovableState>;
 
-export function createMovable(reactiveValue: any): DollarStoreAttachment {
+export function createMovable(): DollarStoreAttachment {
    // Internal z-index management (Window.svelte approach)
    let elements: Element[] = [];
 
@@ -60,7 +60,6 @@ export function createMovable(reactiveValue: any): DollarStoreAttachment {
    }
 
    function handleMouseDown(event: DragEvent): void {
-      console.log(event)
       if (event.button !== 0) return;
       event.preventDefault();
 
@@ -122,7 +121,7 @@ export function createMovable(reactiveValue: any): DollarStoreAttachment {
    }
 
    function setupMovable(element: Element): (() => void) {
-      console.log("Setting up movable", reactiveValue)
+      // console.log("Setting up movable", reactiveValue)
       const htmlElement = element as HTMLElement;
 
       // Set essential movable styles
@@ -179,4 +178,4 @@ export function createMovable(reactiveValue: any): DollarStoreAttachment {
    return spreadables;
 }
 
-export const movable = createMovable(stageState.updates);
+export const movable = createMovable();

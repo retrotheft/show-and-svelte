@@ -1,5 +1,6 @@
 <script lang="ts">
-   import { movable } from '$lib/attachments/movable.js'
+   // import { movable } from '$lib/attachments/movable.js'
+   import { movable } from 'attach-this'
    import { typewriter } from '$lib/vfx/typewriter.js';
 </script>
 

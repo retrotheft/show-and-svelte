@@ -48,7 +48,7 @@
  <code-input id="code" {language} {template} {oninput} {onkeydown} role='textbox' tabindex="0">{code}</code-input>
 
 <style>
-	:global(code-input) {
+	:global(code-input#code) {
 		width: 100% !important;
 		height: 100% !important;
 		margin: 0 !important;

@@ -11,6 +11,9 @@ dependencies:
   '@webcoder49/code-input':
     specifier: ^2.6.6
     version: 2.6.6
+  attach-this:
+    specifier: ^0.0.3
+    version: 0.0.3(svelte@5.38.3)
   highlight.js:
     specifier: ^11.11.1
     version: 11.11.1
@@ -552,6 +555,14 @@ packages:
   /aria-query@5.3.2:
     resolution: {integrity: sha512-COROpnaoap1E2F000S62r6A60uHZnmlvomhfyT2DlTcrY1OrBKn2UhH7qn5wTC9zMvD0AY7csdPSNwKP+7WiQw==}
     engines: {node: '>= 0.4'}
+
+  /attach-this@0.0.3(svelte@5.38.3):
+    resolution: {integrity: sha512-mpZ48QOrQSgoKODT5oZXzfmIREo+pKZy22pBtgeg3EnZcXqw2nf6BLaHlVfrTkJp+qQybCebdP3RlAu3IiCKug==}
+    peerDependencies:
+      svelte: ^5.29.0
+    dependencies:
+      svelte: 5.38.3
+    dev: false
 
   /axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}

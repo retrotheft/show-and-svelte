@@ -51,6 +51,7 @@
 	},
 	"dependencies": {
 		"@webcoder49/code-input": "^2.6.6",
+		"attach-this": "^0.0.3",
 		"highlight.js": "^11.11.1",
 		"svelte-mainloop": "^1.2.2"
 	}

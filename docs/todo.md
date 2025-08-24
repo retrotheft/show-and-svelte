@@ -5,12 +5,11 @@
 - [x] Make interactive Video! Doesn't need to be very long. Just show the components.
 - [x] figure out how to lose position: absolute from each slide (add it in stage.ts somewhere?)
 - [x] remove <template> syntax and have persistence by default (or as an option)
+- [x] install REPL toolkit (plugin-studio?)
 
 
-- [ ] figure out how to separate library stage from user stage
 - [ ] restoreMarks function unnecessary - some of it still useful as alternative mode
-- [ ] install REPL toolkit (plugin-studio?)
-
+- [ ] figure out how to separate library stage from user stage
 
 ---
 

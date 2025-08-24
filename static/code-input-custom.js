@@ -33,8 +33,8 @@ var codeInput = {
     ],
 
     /**
-     * A list of attributes that will be moved to 
-     * the textarea after they are applied on the 
+     * A list of attributes that will be moved to
+     * the textarea after they are applied on the
      * code-input element.
      */
     textareaSyncAttributes: [
@@ -45,8 +45,8 @@ var codeInput = {
         "pattern",
 
         // Source: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea
-        "autocomplete", 
-        "autocorrect", 
+        "autocomplete",
+        "autocorrect",
         "autofocus",
         "cols",
         "dirname",
@@ -64,8 +64,8 @@ var codeInput = {
     ],
 
     /**
-     * A list of events whose listeners will be moved to 
-     * the textarea after they are added to the 
+     * A list of events whose listeners will be moved to
+     * the textarea after they are added to the
      * code-input element.
      */
     textareaSyncEvents: [
@@ -94,7 +94,7 @@ var codeInput = {
     },
     /**
      * The name of the default template that a code-input element that
-     * does not specify the template attribute uses. 
+     * does not specify the template attribute uses.
      * @type {string}
      */
     defaultTemplate: undefined,
@@ -112,7 +112,7 @@ var codeInput = {
      * Register a template so code-input elements with a template attribute that equals the templateName will use the template.
      * See `codeInput.templates` for constructors to create templates.
      * @param {string} templateName - the name to register the template under
-     * @param {Object} template - a Template object instance - see `codeInput.templates`  
+     * @param {Object} template - a Template object instance - see `codeInput.templates`
      */
     registerTemplate: function (templateName, template) {
         if(!(typeof templateName == "string" || templateName instanceof String)) throw TypeError(`code-input: Name of template "${templateName}" must be a string.`);
@@ -121,14 +121,14 @@ var codeInput = {
         if(!(typeof template.preElementStyled == "boolean" || template.preElementStyled instanceof Boolean)) throw TypeError(`code-input: Template for "${templateName}" invalid, because the preElementStyled value provided is not a true or false; it is "${template.preElementStyled}". Please make sure you use one of the constructors in codeInput.templates, and that you provide the correct arguments.`);
         if(!(typeof template.isCode == "boolean" || template.isCode instanceof Boolean)) throw TypeError(`code-input: Template for "${templateName}" invalid, because the isCode value provided is not a true or false; it is "${template.isCode}". Please make sure you use one of the constructors in codeInput.templates, and that you provide the correct arguments.`);
         if(!Array.isArray(template.plugins)) throw TypeError(`code-input: Template for "${templateName}" invalid, because the plugin array provided is not an array; it is "${template.plugins}". Please make sure you use one of the constructors in codeInput.templates, and that you provide the correct arguments.`);
-        
+
         template.plugins.forEach((plugin, i) => {
             if(!(plugin instanceof codeInput.Plugin)) {
                 throw TypeError(`code-input: Template for "${templateName}" invalid, because the plugin provided at index ${i} is not valid; it is "${template.plugins[i]}". Please make sure you use one of the constructors in codeInput.templates, and that you provide the correct arguments.`);
             }
         });
 
-        
+
         codeInput.usedTemplates[templateName] = template;
         // Add waiting code-input elements wanting this template from queue
         if (templateName in codeInput.templateNotYetRegisteredQueue) {
@@ -179,7 +179,7 @@ var codeInput = {
         }
 
         /**
-         * A callback to highlight the code, that takes an HTML `<code>` element 
+         * A callback to highlight the code, that takes an HTML `<code>` element
          * inside a `<pre>` element as a parameter, and an optional second
          * `<code-input>` element parameter if `this.includeCodeInputInHighlightFunc` is
          * `true`.
@@ -187,28 +187,28 @@ var codeInput = {
         highlight = function(codeElement) {};
 
         /**
-         * Is the <pre> element CSS-styled as well as the `<code>` element? 
-         * If `true`, `<pre>` element's scrolling is synchronised; if false, 
+         * Is the <pre> element CSS-styled as well as the `<code>` element?
+         * If `true`, `<pre>` element's scrolling is synchronised; if false,
          * <code> element's scrolling is synchronised.
          */
         preElementStyled = true;
 
         /**
-         * Is this for writing code? 
-         * If true, the code-input's lang HTML attribute can be used, 
-         * and the `<code>` element will be given the class name 
+         * Is this for writing code?
+         * If true, the code-input's lang HTML attribute can be used,
+         * and the `<code>` element will be given the class name
          * 'language-[lang attribute's value]'.
          */
         isCode = true;
 
         /**
-         * Setting this to true passes the `<code-input>` element as a 
+         * Setting this to true passes the `<code-input>` element as a
          * second argument to the highlight function.
          */
         includeCodeInputInHighlightFunc = false;
 
         /**
-         * An array of plugin objects to add extra features - 
+         * An array of plugin objects to add extra features -
          * see `codeInput.Plugin`.
          */
         plugins = [];
@@ -216,14 +216,14 @@ var codeInput = {
 
     // ESM-SUPPORT-START-TEMPLATES-BLOCK-1 Do not (re)move this - it's needed for ESM generation!
     /**
-     * For creating a custom template from scratch, please 
+     * For creating a custom template from scratch, please
      * use `new codeInput.Template(...)`
-     * 
+     *
      * Shortcut functions for creating templates.
-     * Each code-input element has a template attribute that 
+     * Each code-input element has a template attribute that
      * tells it which template to use.
-     * Each template contains functions and preferences that 
-     * run the syntax-highlighting and let code-input control 
+     * Each template contains functions and preferences that
+     * run the syntax-highlighting and let code-input control
      * the highlighting.
      * For adding small pieces of functionality, please see `codeInput.plugins`.
      */
@@ -303,7 +303,7 @@ var codeInput = {
         rainbow_text(rainbowColors = ["red", "orangered", "orange", "goldenrod", "gold", "green", "darkgreen", "navy", "blue", "magenta"], delimiter = "", plugins = []) {
             return this.rainbowText(rainbowColors, delimiter, plugins);
         },
-        
+
         /**
          * @deprecated Please use `new codeInput.Template(...)`
          */
@@ -327,13 +327,13 @@ var codeInput = {
      * Before using any plugin in this namespace, please ensure you import its JavaScript
      * files (in the plugins folder), or continue to get a more detailed error in the developer
      * console.
-     * 
+     *
      * Where plugins are stored, after they are imported. The plugin
      * file assigns them a space in this object.
      * For adding completely new syntax-highlighting algorithms, please see `codeInput.templates`.
-     * 
+     *
      * Key - plugin name
-     * 
+     *
      * Value - plugin object
      * @type {Object}
      */
@@ -353,8 +353,8 @@ var codeInput = {
     Plugin: class {
         /**
          * Create a Plugin
-         * 
-         * @param {Array<string>} observedAttributes - The HTML attributes to watch for this plugin, and report any 
+         *
+         * @param {Array<string>} observedAttributes - The HTML attributes to watch for this plugin, and report any
          * modifications to the `codeInput.Plugin.attributeChanged` method.
          */
         constructor(observedAttributes) {
@@ -439,7 +439,7 @@ var codeInput = {
         */
         codeElement = null;
 
-        /** 
+        /**
          * Exposed non-scrolling element designed to contain dialog boxes etc. from plugins,
          * that shouldn't scroll with the code-input element.
          */
@@ -457,11 +457,11 @@ var codeInput = {
          * rather than the textarea. This allows the callback to be converted
          * to a bound one:
          * Key - Callback not bound
-         * Value - Callback that is bound, with this equalling the code-input element in the callback 
+         * Value - Callback that is bound, with this equalling the code-input element in the callback
          */
         boundEventCallbacks = {};
 
-        /** Trigger this event in all plugins with a optional list of arguments 
+        /** Trigger this event in all plugins with a optional list of arguments
          * @param {string} eventName - the name of the event to trigger
          * @param {Array} args - the arguments to pass into the event callback in the template after the code-input element. Normally left empty
         */
@@ -480,8 +480,8 @@ var codeInput = {
 
         /* ------------------------------------
         *  ----------Main Functionality--------
-        *  ------------------------------------ 
-        * The main function of a code-input element is to take 
+        *  ------------------------------------
+        * The main function of a code-input element is to take
         * code written in its textarea element, copy this code into
         * the result (pre code) element, then use the template object
         * to syntax-highlight it. */
@@ -684,7 +684,7 @@ var codeInput = {
                 // For backwards compatibility:
                 textarea.setAttribute("spellcheck", "false");
             }
-            
+
             // Disable focusing on the code-input element - only allow the textarea to be focusable
             textarea.setAttribute("tabindex", this.getAttribute("tabindex") || 0);
             this.setAttribute("tabindex", -1);
@@ -839,7 +839,7 @@ var codeInput = {
                 } else {
                     this.setup();
                 }
-            } 
+            }
         }
 
         mutationObserverCallback(mutationList, observer) {
@@ -1002,7 +1002,7 @@ var codeInput = {
          * @override
          */
         removeEventListener(type, listener, options = undefined) {
-            // Save a copy of the callback where `this` refers to the code-input element 
+            // Save a copy of the callback where `this` refers to the code-input element
             let boundCallback = this.boundEventCallbacks[listener];
 
             if (codeInput.textareaSyncEvents.includes(type)) {
