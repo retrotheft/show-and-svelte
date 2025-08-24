@@ -5,7 +5,7 @@
 
 <template>
    <div id="svelte" {@attach typewriter("Wheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", 150)} {...movable}></div>
-   <div id="clapper"></div>
+   <div id="clapper2"></div>
 </template>
 
 <style>
@@ -17,7 +17,7 @@
       cursor: move;
    }
 
-   div#clapper{
+   div#clapper2 {
       opacity: 0;
       place-self: center;
       transform: scale(5);

@@ -12,7 +12,6 @@
    import { SvelteMap } from "svelte/reactivity";
 
    let angle = $state(0)
-   let codeActive = $state(false)
 
    let { children } = $props();
 
@@ -23,9 +22,6 @@
    const templates = extractTemplatesFromChildren(children);
    const sceneMap: SvelteMap<number, HTMLElement[]> = setupSceneMap(templates);
 
-   console.log("First scene elements after setup:",
-      sceneMap.get(0)?.map(el => el.id + " " + el.tagName)
-   );
    const sceneActorSet = setupSceneActorSet(sceneMap);
    let virtualStage = $state.raw<HTMLElement>();
    const marks = $state.raw<HTMLElement[]>(setupMarks(sceneActorSet));
@@ -50,7 +46,6 @@
       const scene = sceneMap.get(currentScene);
       if (!scene || !virtualStage) return;
       transferStylesToMarks(scene, virtualStage, marks, stageState);
-      console.log("Scene elements:", scene.map(el => el.id + " " + el.tagName));
    }
 
    function nextScene(value: number = 1) {
@@ -71,11 +66,6 @@
    {@render children?.()}
 </main>
 
-<!-- {stageState.codeActive} -->
-
-{#if stageState.codeActive}
-   <div>THIS IS THE CODE VIEWER</div>
-{/if}
 
 <style>
    main {
@@ -110,8 +100,8 @@
       inset: 0;
       z-index: -1;
 
-      > * {
+      /*> * {
          position: absolute;
-      }
+      }*/
    }
 </style>
