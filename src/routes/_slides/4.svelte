@@ -3,6 +3,7 @@
 </script>
 
 <template>
+   <div id="view"></div>
    <div id="svelte">Instructions</div>
    <div id="code" {@attach typewriter("1. Create slides from Svelte components.")}></div>
 </template>
@@ -10,6 +11,15 @@
 <style>
    * {
       position: absolute;
+   }
+
+   div#view {
+      color: lightgreen;
+      place-self: start center;
+      transform: translateY(30vh);
+      white-space: nowrap;
+      width: 30ch;
+      opacity: 0;
    }
 
    div#svelte {

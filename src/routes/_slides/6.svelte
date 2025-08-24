@@ -4,7 +4,7 @@
 
 <template>
    <div id="view" {@attach typewriter("Well, one more thing.")}></div>
-   <div id="code">1. Create slides from Svelte components.</div>
+   <div id="code"></div>
 </template>
 
 <style>
@@ -14,7 +14,7 @@
 
    div#view {
       transform: translate(10vh, 30vh);
-      color: hotpink;
+      color: #ccc;
       width: 30ch;
       cursor: move;
    }
