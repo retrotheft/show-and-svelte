@@ -1,0 +1,17 @@
+body {
+   background-color: black;
+   color: white;
+   display: grid;
+   place-items: center;
+   height: 100vh;
+   color: white;
+   font-family: "Quicksand";
+   font-size: 5rem;
+   font-weight: 700;
+   margin: 0;
+   padding: 0;
+}
+
+#app {
+   position: relative;
+}
