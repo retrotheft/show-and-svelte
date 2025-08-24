@@ -1,0 +1,9 @@
+<div id="svelte">That's it.</div>
+
+<style>
+   div#svelte {
+      place-self: end center;
+      color: violet;
+      width: 30ch;
+   }
+</style>

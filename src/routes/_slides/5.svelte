@@ -1,14 +1,20 @@
 <script lang="ts">
    import { typewriter } from '$lib/vfx/typewriter.js'
+   import CodeEditor from '$lib/components/CodeEditor.svelte'
+   import exampleSlide from '../_content/slide-5-example.txt?raw'
+
+   let code = $state(exampleSlide)
 </script>
 
-<div id="svelte" {@attach typewriter("Oh, actually that's it.")}></div>
-<div id="code">1. Create slides from Svelte components.</div>
+<div id="svelte" {@attach typewriter("That's it.")}></div>
+<div id="code" data-inset="0">
+   <CodeEditor bind:code language="javascript" template="js" />
+</div>
 
 <style>
    div#svelte {
-      place-self: end center;
-      transform: translate(50%, -40vh);
+      place-self: center;
+      /*transform: translateY(-40vh);*/
       color: violet;
       width: 30ch;
    }

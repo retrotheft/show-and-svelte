@@ -1,4 +1,4 @@
-<div id="svelte">This presentation was made with Svelte</div>
+<div id="svelte">This presentation was made with Svelte.</div>
 <div id="view">Here's how it works.</div>
 <div id="code"></div>
 
