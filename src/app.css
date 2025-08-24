@@ -14,11 +14,3 @@ body {
 #app {
    position: relative;
 }
-
-.code {
-   top: 1ch;
-   bottom: 1ch;
-   right: 1ch;
-   width: 30ch;
-   border: 1px solid grey;
-}
