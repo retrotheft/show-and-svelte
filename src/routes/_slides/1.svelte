@@ -4,8 +4,9 @@
 
 <template>
    <div id="svelte" {@attach typewriter("This video was made with Svelte")}></div>
-   <div id="view">No, it's not using view transitions.</div>
+   <div id="view">Here's how it works.</div>
 </template>
+<div>Hello there</div>
 
 <style>
    * {

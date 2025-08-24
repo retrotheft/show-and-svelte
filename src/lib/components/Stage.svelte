@@ -92,7 +92,7 @@
       height: 1100px;
       border: 1px solid grey;
       display: grid;
-      place-items: center;
+      /*place-items: center;*/
       background-color: black;
 
    }
@@ -101,8 +101,8 @@
       transition: all 0.5s linear;
       position: absolute;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      /*align-items: center;*/
+      /*justify-content: center;*/
       opacity: 0;
    }
 

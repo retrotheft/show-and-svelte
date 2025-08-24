@@ -1,7 +1,7 @@
 <template>
    <div id="svelte">This video was made with Svelte</div>
-   <div id="view">No, it's not using view transitions.</div>
-   <div id="code">This is the code viewer</div>
+   <div id="view">Here's how it works.</div>
+   <div id="code"></div>
 </template>
 
 <style>

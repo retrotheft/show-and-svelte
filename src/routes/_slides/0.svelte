@@ -3,7 +3,11 @@
 </template>
 
 <style>
+   * {
+      position: absolute;
+   }
    div {
       color: white;
+      place-self: center;
    }
 </style>
