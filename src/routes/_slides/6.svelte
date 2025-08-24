@@ -3,16 +3,12 @@
 </script>
 
 <template>
-   <div id="view" {@attach typewriter("Well, one more thing.")}></div>
+   <div id="svelte" {@attach typewriter("Well, one more thing.")}></div>
    <div id="code"></div>
 </template>
 
 <style>
-   * {
-      position: absolute;
-   }
-
-   div#view {
+   div#svelte {
       transform: translate(10vh, 30vh);
       color: #ccc;
       width: 30ch;

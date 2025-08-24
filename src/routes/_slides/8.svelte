@@ -1,12 +1,9 @@
 <template>
-   <div id="clapper">Coming Soon</div>
+   <div id="clapper2">Coming Soon</div>
 </template>
 
 <style>
-   * {
-      position: absolute;
-   }
-   div#clapper {
+   div#clapper2 {
       color: white;
       place-self: center;
       width: 11ch;

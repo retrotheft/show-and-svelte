@@ -3,20 +3,15 @@
 </script>
 
 <template>
-   <div id="svelte" {@attach typewriter("This video was made with Svelte")}></div>
+   <div id="svelte" {@attach typewriter("This presentation was made with Svelte")}></div>
    <div id="view">Here's how it works.</div>
 </template>
-<div>Hello there</div>
 
 <style>
-   * {
-      position: absolute;
-   }
-
    div#svelte {
       color: orangered;
       place-self: center;
-      width: 30ch;
+      width: 34ch;
       text-align: center;
    }
 
@@ -24,7 +19,7 @@
       place-self: end center;
       transform: translateY(100%);
       color: violet;
-      width: 30ch;
+      width: 34ch;
       opacity: 0;
    }
 </style>

@@ -4,16 +4,13 @@
 </script>
 
 <template>
-   <div id="view" {@attach typewriter("Wheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", 150)} {...movable}></div>
+   <div id="svelte" {@attach typewriter("Wheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", 150)} {...movable}></div>
    <div id="clapper"></div>
 </template>
 
 <style>
-   * {
+   div#svelte {
       position: absolute;
-   }
-
-   div#view {
       transform: translate(10vh, 30vh);
       color: yellow;
       width: 30ch;

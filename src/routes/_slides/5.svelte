@@ -3,16 +3,12 @@
 </script>
 
 <template>
-   <div id="view" {@attach typewriter("Oh, actually that's it.")}></div>
+   <div id="svelte" {@attach typewriter("Oh, actually that's it.")}></div>
    <div id="code">1. Create slides from Svelte components.</div>
 </template>
 
 <style>
-   * {
-      position: absolute;
-   }
-
-   div#view {
+   div#svelte {
       place-self: end center;
       transform: translate(50%, -40vh);
       color: violet;

@@ -9,8 +9,8 @@ function typewriter(
    interval: number = 75,
    multipliers: Record<string, number> = {}
 ): Attachment {
-   console.log(stageState.updates)
    return (element: Element) => {
+      let lastSceneChange: number = stageState.updates
       let lastTimestamp: number = 0;
       let textBuffer: string[] = [];
       let nextInterval: number = 0;

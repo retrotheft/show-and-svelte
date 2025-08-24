@@ -9,10 +9,6 @@
 </template>
 
 <style>
-   * {
-      position: absolute;
-   }
-
    div#view {
       color: lightgreen;
       place-self: start center;

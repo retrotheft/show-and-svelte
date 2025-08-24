@@ -10,7 +10,7 @@ export function setupSceneMap(templates: HTMLTemplateElement[]): SvelteMap<numbe
 export function setupSceneActorSet(sceneMap: SvelteMap<number, HTMLElement[]>): Set<string> {
    const array = [];
    for (const collection of sceneMap.values()) {
-       array.push(...collection);
+      array.push(...collection);
    }
    const set = new Set<string>()
    for (const element of array) set.add(`${element.tagName}#${element.id}`)
@@ -55,6 +55,7 @@ export function transferStylesToMarks(
    console.log("TRANSFER: Starting with scene elements:", scene.map(el => el.id + " " + el.tagName));
    scene.forEach(element => {
       const clone = element.cloneNode(true) as HTMLElement;
+      clone.style.position = "absolute"
       virtualStage.appendChild(clone);
 
       const style = getComputedStyle(element);
@@ -70,12 +71,12 @@ export function transferStylesToMarks(
             if (property !== "display") mark.style.setProperty(property, value);
             element.style.setProperty(property, "");
          }
-
-          mark.style.transition = 'all 0.5s ease';
-          element.id = "";
-          element.style.visibility = "visible"
-          mark.replaceChildren(element);
-          mark.classList.add('ready');
+         mark.style.transition = 'all 0.5s ease';
+         element.id = "";
+         element.style.position = "absolute"
+         element.style.visibility = "visible"
+         mark.replaceChildren(element);
+         mark.classList.add('ready');
       } else {
          console.log("TRANSFER: NO MARK FOUND for", actor);
       }
@@ -84,6 +85,9 @@ export function transferStylesToMarks(
    });
 }
 
+// much less relevant now that sceneMap uses arrays instead of HTMLCollections
+// but still useful as an alternative mode where undeclared elements get cleared instead of persisting
+// that said, it only needs to clear the mark, so it's still doing too much
 export function restoreElementsFromMarks(
    marks: HTMLElement[],
    sceneNumber: number,

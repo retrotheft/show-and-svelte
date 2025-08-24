@@ -31,9 +31,11 @@
    const marks = $state.raw<HTMLElement[]>(setupMarks(sceneActorSet));
    const setVirtualStage = (element: HTMLElement) => virtualStage = element;
 
+   // can switch persistence mode by switching callback
    const nextSceneController = createSceneController(
       sceneMap,
       (sceneNumber) => restoreElementsFromMarks(marks, sceneNumber, sceneMap),
+      // (sceneNumber) => {},
       stageState
    );
 
@@ -50,15 +52,6 @@
       transferStylesToMarks(scene, virtualStage, marks, stageState);
       console.log("Scene elements:", scene.map(el => el.id + " " + el.tagName));
    }
-
-   $effect(() => {
-      console.log(sceneMap)
-      // hitMarks();
-   });
-
-   // onMount(() => {
-   //    hitMarks()
-   // })
 
    function nextScene(value: number = 1) {
       currentScene = nextSceneController(currentScene, value);
