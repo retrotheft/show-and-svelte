@@ -83,8 +83,8 @@ export function transferStylesToMarks(
          mark.style.transition = 'all 0.5s ease';
          element.id = "";
          // display: contents is the dream, but attachments are currently preventing this
-         // element.style.display = "contents"
-         element.style.position = "absolute"
+         element.style.display = "contents"
+         // element.style.position = "absolute"
          for (const key in element.dataset) {
             if (key in element.style) element.style[key] = element.dataset[key]
          }

@@ -60,12 +60,14 @@ export function createMovable(reactiveValue: any): DollarStoreAttachment {
    }
 
    function handleMouseDown(event: DragEvent): void {
+      console.log(event)
       if (event.button !== 0) return;
       event.preventDefault();
 
-      const element = event.currentTarget;
-      const computedStyle = getComputedStyle(element as HTMLElement);
-
+      const element = event.currentTarget as HTMLElement;
+      const computedStyle = getComputedStyle(element);
+      // element.style.position = "absolute"
+      // element.style.display = "block"
       // Bring to front
       moveToBack(element);
 
@@ -90,6 +92,8 @@ export function createMovable(reactiveValue: any): DollarStoreAttachment {
          const deltaY = event.clientY - startY;
          const newX = elementStartX + deltaX;
          const newY = elementStartY + deltaY;
+
+
 
          // Update element position
          (element as HTMLElement).style.left = `${newX}px`;

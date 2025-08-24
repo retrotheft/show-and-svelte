@@ -3,7 +3,7 @@
    import { typewriter } from '$lib/vfx/typewriter.js';
 </script>
 
-<div id="svelte" {@attach typewriter("Wheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", 150)} {...movable}></div>
+<div id="svelte" {@attach typewriter("Wheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", 150)} {...movable} data-position="absolute" data-display="block"></div>
 <div id="clapper2"></div>
 
 <style>
