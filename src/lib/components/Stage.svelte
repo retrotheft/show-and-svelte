@@ -52,6 +52,7 @@
    }
 
    $effect(() => {
+      console.log(sceneMap)
       // hitMarks();
    });
 
@@ -67,6 +68,7 @@
    function onkeydown(event: KeyboardEvent) {
       if (event.code === "ArrowLeft") return nextScene(-1);
       if (event.code === "ArrowRight") return nextScene(1);
+      if (event.code === "ArrowUp") return console.log(sceneMap)
    }
 </script>
 
