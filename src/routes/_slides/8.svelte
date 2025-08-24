@@ -1,5 +1,5 @@
 <template>
-   <div id="clapper">Svelte Movie Maker</div>
+   <div id="clapper">Coming Soon</div>
 </template>
 
 <style>
@@ -9,5 +9,6 @@
    div#clapper {
       color: white;
       place-self: center;
+      width: 11ch;
    }
 </style>

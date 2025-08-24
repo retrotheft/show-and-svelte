@@ -3,8 +3,8 @@
 </script>
 
 <template>
-   <div id="svelte">Instructions</div>
-   <div id="code" {@attach typewriter("1. Create slides from Svelte components.")}></div>
+   <div id="view" {@attach typewriter("Oh, actually that's it.")}></div>
+   <div id="code">1. Create slides from Svelte components.</div>
 </template>
 
 <style>
@@ -12,11 +12,10 @@
       position: absolute;
    }
 
-   div#svelte {
-      color: lightgreen;
-      place-self: start center;
-      transform: translateY(30vh);
-      white-space: nowrap;
+   div#view {
+      place-self: end center;
+      transform: translate(50%, -40vh);
+      color: violet;
       width: 30ch;
    }
 
