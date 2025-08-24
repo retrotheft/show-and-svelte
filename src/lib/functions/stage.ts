@@ -82,9 +82,13 @@ export function transferStylesToMarks(
          }
          mark.style.transition = 'all 0.5s ease';
          element.id = "";
+         // display: contents is the dream, but attachments are currently preventing this
+         // element.style.display = "contents"
          element.style.position = "absolute"
-         element.style.visibility = "visible"
-         // element.style.border = "10px solid lightgreen"
+         for (const key in element.dataset) {
+            if (key in element.style) element.style[key] = element.dataset[key]
+         }
+         // element.style.visibility = "visible"
          mark.replaceChildren(element);
          mark.classList.add('ready');
       } else {

@@ -1,18 +1,18 @@
 <script lang="ts">
    import { typewriter } from "$lib/vfx/typewriter.js";
-   // import CodeEditor from '$lib/components/CodeEditor.svelte'
+   import CodeEditor from '$lib/components/CodeEditor.svelte'
 
-   // let code = $state(`const message = "Hello there";`)
+   let code = $state(`const message = "Hello there";`)
 </script>
 
 <div id="view"></div>
 <div id="svelte">Instructions</div>
-<div id="code" {@attach typewriter("1. Create slides from Svelte components.")}></div>
-<!-- <div id="code"> -->
+<!-- <div id="code" {@attach typewriter("1. Create slides from Svelte components.")}></div> -->
+<div id="code" data-inset="0">
    <!-- Hello there -->
-   <!-- <CodeEditor bind:code language="javascript" template="js" /> -->
+   <CodeEditor bind:code language="javascript" template="js" />
 
-<!-- </div> -->
+</div>
 
 <style>
    div#view {
