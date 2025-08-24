@@ -35,9 +35,9 @@ export function extractSceneMapFromChildren(children: Snippet): SvelteMap<number
             groupIndex++
             currentGroup = []
          }
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-         currentGroup.push(node as HTMLElement)
-      }
+       } else if (node.nodeType === Node.ELEMENT_NODE) {
+          currentGroup.push(node as HTMLElement)
+       }
    }
 
    // Add the last group if it has elements

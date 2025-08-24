@@ -45,7 +45,7 @@
    }
 </script>
 
- <code-input {language} {template} {oninput} {onkeydown} role='textbox' tabindex="0">{code}</code-input>
+ <code-input id="code" {language} {template} {oninput} {onkeydown} role='textbox' tabindex="0">{code}</code-input>
 
 <style>
 	:global(code-input) {
@@ -53,5 +53,6 @@
 		height: 100% !important;
 		margin: 0 !important;
 		box-sizing: border-box;
+		font-size: 1rem;
 	}
 </style>

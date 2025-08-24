@@ -1,6 +1,8 @@
 import { SvelteMap } from "svelte/reactivity";
 import { untrack } from "svelte";
 
+const cloneMap = new Map<HTMLElement, HTMLElement>()
+
 export function setupSceneMap(templates: HTMLTemplateElement[]): SvelteMap<number, HTMLElement[]> {
    const map = new SvelteMap<number, HTMLElement[]>()
    templates.forEach((template, index) => map.set(index, Array.from(template.content.children) as HTMLElement[]))
@@ -54,11 +56,18 @@ export function transferStylesToMarks(
    while (virtualStage.firstChild) virtualStage.firstChild.remove();
    console.log("TRANSFER: Starting with scene elements:", scene.map(el => el.id + " " + el.tagName));
    scene.forEach(element => {
-      const clone = element.cloneNode(true) as HTMLElement;
-      clone.style.position = "absolute"
-      virtualStage.appendChild(clone);
+      let clone: HTMLElement | undefined;
+      clone = cloneMap.get(element)
+      if (clone) console.log(clone.style)
+      if (!clone) {
+         clone = element.cloneNode(true) as HTMLElement
+         clone.style.position = "absolute"
+         cloneMap.set(element, clone)
+      }
+      virtualStage.appendChild(clone)
 
-      const style = getComputedStyle(element);
+
+      // const style = getComputedStyle(element);
       const computedStyle = getComputedStyle(clone);
       const actor = element.tagName + (element.id ? `#${element.id}` : '');
       const mark = marks.find(m => m.dataset.actor === actor);
@@ -75,6 +84,7 @@ export function transferStylesToMarks(
          element.id = "";
          element.style.position = "absolute"
          element.style.visibility = "visible"
+         // element.style.border = "10px solid lightgreen"
          mark.replaceChildren(element);
          mark.classList.add('ready');
       } else {
