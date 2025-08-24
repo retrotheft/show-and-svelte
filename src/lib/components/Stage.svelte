@@ -103,6 +103,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      opacity: 0;
+   }
+
+   :global([data-actor].ready) {
+      opacity: 1;
    }
 
    :global(#virtual-stage) {

@@ -4,6 +4,7 @@
 
 <template>
    <div id="svelte" {@attach typewriter("This video was made with Svelte")}></div>
+   <!-- <div id="svelte">This video was made with Svelte</div> -->
 </template>
 
 <style>

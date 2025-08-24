@@ -71,10 +71,11 @@ export function transferStylesToMarks(
             element.style.setProperty(property, "");
          }
 
-         mark.style.transition = 'all 0.5s ease';
-         element.id = "";
-         element.style.visibility = "visible"
-         mark.replaceChildren(element);
+          mark.style.transition = 'all 0.5s ease';
+          element.id = "";
+          element.style.visibility = "visible"
+          mark.replaceChildren(element);
+          mark.classList.add('ready');
       } else {
          console.log("TRANSFER: NO MARK FOUND for", actor);
       }
