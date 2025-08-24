@@ -12,7 +12,7 @@
 <Stage>
    <Scene0 />
    <Scene1 />
-   <Scene2 />
+   <!-- <Scene2 /> -->
    <Scene3 />
    <Scene4 />
 </Stage>

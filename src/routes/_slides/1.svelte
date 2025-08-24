@@ -4,7 +4,7 @@
 
 <template>
    <div id="svelte" {@attach typewriter("This video was made with Svelte")}></div>
-   <!-- <div id="svelte">This video was made with Svelte</div> -->
+   <div id="view">No, it's not using view transitions.</div>
 </template>
 
 <style>
@@ -17,5 +17,13 @@
       place-self: center;
       width: 30ch;
       text-align: center;
+   }
+
+   div#view {
+      place-self: end center;
+      transform: translateY(100%);
+      color: violet;
+      width: 30ch;
+      opacity: 0;
    }
 </style>

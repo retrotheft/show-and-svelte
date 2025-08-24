@@ -88,8 +88,8 @@
       position: relative;
       width: 100vw;
       height: 100vh;
-      width: 1920px;
-      height: 1080px;
+      width: 1940px;
+      height: 1100px;
       border: 1px solid grey;
       display: grid;
       place-items: center;
