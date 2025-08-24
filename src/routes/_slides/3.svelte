@@ -1,8 +1,6 @@
-<template>
-   <div id="svelte">This presentation was made with Svelte</div>
-   <div id="view">Here's how it works.</div>
-   <div id="code"></div>
-</template>
+<div id="svelte">This presentation was made with Svelte</div>
+<div id="view">Here's how it works.</div>
+<div id="code"></div>
 
 <style>
    div#svelte {

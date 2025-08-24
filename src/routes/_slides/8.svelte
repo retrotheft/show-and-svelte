@@ -1,6 +1,5 @@
-<template>
-   <div id="clapper2">Coming Soon</div>
-</template>
+
+<div id="clapper2">Coming Soon</div>
 
 <style>
    div#clapper2 {

@@ -1,7 +1,4 @@
-<template>
-   <div id="svelte">This presentation was made with Svelte</div>
-
-</template>
+<div id="svelte">This presentation was made with Svelte</div>
 
 <style>
    div#svelte {

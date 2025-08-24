@@ -2,9 +2,7 @@
    import { typewriter } from '$lib/vfx/typewriter.js'
 </script>
 
-<template>
-   <div id="svelte" {@attach typewriter("The rest is magic.")}></div>
-</template>
+<div id="svelte" {@attach typewriter("The rest is magic.")}></div>
 
 <style>
    div#svelte {

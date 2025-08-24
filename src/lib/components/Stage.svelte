@@ -1,12 +1,11 @@
 <script lang="ts" module>
    export const stageState = $state({
       updates: 0,
-      codeActive: false
    })
 </script>
 
 <script lang="ts">
-   import { extractTemplatesFromChildren } from "$lib/functions/extract.js";
+   import { extractSceneMapFromChildren, extractAndRemoveSceneMapFromChildren } from "$lib/functions/extract.js";
    import { setupSceneActorSet, setupSceneMap, setupVirtualStage, setupMarks, transferStylesToMarks, restoreElementsFromMarks, createSceneController } from "$lib/functions/stage.js";
    import { onMount } from "svelte";
    import { SvelteMap } from "svelte/reactivity";
@@ -19,8 +18,8 @@
    let stageElement = $state<HTMLElement>();
    let actorsDiv = $state<HTMLDivElement>()
 
-   const templates = extractTemplatesFromChildren(children);
-   const sceneMap: SvelteMap<number, HTMLElement[]> = setupSceneMap(templates);
+   // const templates = extractTemplatesFromChildren(children);
+   const sceneMap: SvelteMap<number, HTMLElement[]> = extractSceneMapFromChildren(children);
 
    const sceneActorSet = setupSceneActorSet(sceneMap);
    let virtualStage = $state.raw<HTMLElement>();
@@ -63,9 +62,8 @@
 <svelte:window {onkeydown} />
 
 <main bind:this={stageElement} {@attach setupVirtualStage(setVirtualStage)} style={`--angle: ${angle}deg;`}>
-   {@render children?.()}
+   <!-- {@render children?.()} -->
 </main>
-
 
 <style>
    main {

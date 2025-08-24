@@ -2,10 +2,8 @@
    import { typewriter } from '$lib/vfx/typewriter.js'
 </script>
 
-<template>
-   <div id="svelte" {@attach typewriter("Oh, actually that's it.")}></div>
-   <div id="code">1. Create slides from Svelte components.</div>
-</template>
+<div id="svelte" {@attach typewriter("Oh, actually that's it.")}></div>
+<div id="code">1. Create slides from Svelte components.</div>
 
 <style>
    div#svelte {

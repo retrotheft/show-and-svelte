@@ -1,12 +1,10 @@
 <script lang="ts">
-   import { typewriter } from '$lib/vfx/typewriter.js'
+   import { typewriter } from "$lib/vfx/typewriter.js";
 </script>
 
-<template>
-   <div id="view"></div>
-   <div id="svelte">Instructions</div>
-   <div id="code" {@attach typewriter("1. Create slides from Svelte components.")}></div>
-</template>
+<div id="view"></div>
+<div id="svelte">Instructions</div>
+<div id="code" {@attach typewriter("1. Create slides from Svelte components.")}></div>
 
 <style>
    div#view {

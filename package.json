@@ -1,5 +1,5 @@
 {
-	"name": "svelte-movie-maker",
+	"name": "show-and-svelte",
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "vite dev",

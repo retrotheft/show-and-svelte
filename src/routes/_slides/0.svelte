@@ -1,6 +1,4 @@
-<template>
-   <div id="clapper">Show & Svelte</div>
-</template>
+<div id="clapper">Show & Svelte</div>
 
 <style>
    div#clapper {
