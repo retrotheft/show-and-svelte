@@ -8,6 +8,19 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+	
+	interface Window {
+		codeInput: {
+			registerTemplate: (templateName: string, template: any) => void;
+			templates: {
+				hljs: (hljs: any, plugins?: any[]) => any;
+			};
+			plugins: {
+				Indent: new (useSpaces: boolean, size: number) => any;
+				AutoCloseBrackets: new () => any;
+			};
+		};
+	}
 }
 
 export {};

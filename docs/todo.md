@@ -6,6 +6,7 @@
 - [x] figure out how to lose position: absolute from each slide (add it in stage.ts somewhere?)
 - [x] remove <template> syntax and have persistence by default (or as an option)
 
+
 - [ ] figure out how to separate library stage from user stage
 - [ ] restoreMarks function unnecessary - some of it still useful as alternative mode
 - [ ] install REPL toolkit (plugin-studio?)
