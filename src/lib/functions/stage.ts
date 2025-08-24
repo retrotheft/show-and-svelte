@@ -25,9 +25,9 @@ export function setupVirtualStage(callback: Function) {
          virtualStage.style.setProperty(property, value)
       }
       virtualStage.style.position = 'absolute';
-      virtualStage.style.inset = '0';
+      virtualStage.style.left = '-9999px';
+      virtualStage.style.top = '-9999px';
       virtualStage.style.zIndex = '-1';
-      // virtualStage.style.visibility = "hidden"
 
       virtualStage.id = "virtual-stage"
       callback(virtualStage)
