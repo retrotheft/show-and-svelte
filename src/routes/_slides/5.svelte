@@ -1,22 +1,31 @@
 <script lang="ts">
    import { typewriter } from '$lib/vfx/typewriter.js'
    import CodeEditor from '$lib/components/CodeEditor.svelte'
-   import exampleSlide from '../_content/slide-5-example.txt?raw'
-
-   let code = $state(exampleSlide)
+   import MarkdownIt from '$lib/components/MarkdownIt.svelte'
+   import content from '../_content/5.md?raw'
 </script>
 
-<div id="svelte" {@attach typewriter("That's it.")}></div>
-<div id="code" data-inset="0">
-   <CodeEditor bind:code language="javascript" template="js" />
+<div id="view" {@attach typewriter("That's it.")}></div>
+<!-- <div id="svelte"></div> -->
+<div id="code" data-inset="0"  data-display="flex" data-align-items="center">
+   <!-- <CodeEditor bind:code language="javascript" template="js" /> -->
+   <MarkdownIt {content} />
 </div>
 
 <style>
+   div#view {
+      color: violet;
+      place-self: center;
+      width: 30ch;
+      white-space: nowrap;
+   }
+
    div#svelte {
       place-self: center;
       /*transform: translateY(-40vh);*/
       color: violet;
       width: 30ch;
+      white-space: nowrap;
    }
 
    div#code {
@@ -28,7 +37,6 @@
       color: white;
       font-size: 2rem;
       text-align: left;
-      padding: 1em;
-      font-family: monospace;
+      padding-inline: 2rem;
    }
 </style>

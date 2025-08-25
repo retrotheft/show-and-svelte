@@ -1,6 +1,9 @@
 <div id="svelte">This presentation was made with Svelte.</div>
 <div id="view">Here's how it works.</div>
-<div id="code"></div>
+<div id="code" data-inset="0" data-display="flex" data-align-items="center">
+
+
+</div>
 
 <style>
    div#svelte {
@@ -19,13 +22,15 @@
    }
 
    div#code {
-      top: 5ch;
-      bottom: 5ch;
-      right: 5ch;
-      width: 10ch;
+      top: 1ch;
+      bottom: 1ch;
+      right: 1ch;
+      width: 50%;
       border: 1px solid grey;
-      transform: translateX(150%);
-      opacity: 0;
-      /*display: none;*/
+      color: white;
+      font-size: 3rem;
+      text-align: left;
+      padding-inline: 2rem;
+      transform: translateX(100vw);
    }
 </style>
