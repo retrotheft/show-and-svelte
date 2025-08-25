@@ -1,13 +1,16 @@
 <script lang="ts">
    import { typewriter } from '$lib/vfx/typewriter.js'
-   import MarkdownIt from '../_components/MarkdownItWrapper.svelte'
+   import MarkdownIt from '$lib/components/MarkdownIt.svelte'
+   import HighlightProvider from '../_components/HighlightProvider.svelte'
    import content from '../_content/5a.md?raw'
 </script>
 
 <div id="view" {@attach typewriter("The rest is magic.")}></div>
 <div id="code" data-inset="0"  data-display="flex" data-align-items="center">
    <!-- <CodeEditor bind:code language="javascript" template="js" /> -->
-   <MarkdownIt {content} />
+   <HighlightProvider>
+      <MarkdownIt {content} />
+   </HighlightProvider>
 </div>
 
 <style>

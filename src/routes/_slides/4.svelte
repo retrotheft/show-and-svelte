@@ -1,10 +1,11 @@
 <script lang="ts">
    import { typewriter } from "$lib/vfx/typewriter.js";
-   import CodeEditor from '$lib/components/CodeEditor.svelte'
-   import MarkdownIt from '../_components/MarkdownItWrapper.svelte'
-   import content from '../_content/4.md?raw'
+   import CodeEditor from "$lib/components/CodeEditor.svelte";
+   import MarkdownIt from "$lib/components/MarkdownIt.svelte";
+   import HighlightProvider from "../_components/HighlightProvider.svelte";
+   import content from "../_content/4.md?raw";
 
-   let code = $state(``)
+   let code = $state(``);
 </script>
 
 <div id="view">Instructions</div>
@@ -12,7 +13,9 @@
 <!-- <div id="code" {@attach typewriter("1. Create slides from Svelte components.")}></div> -->
 <div id="code" data-inset="0" data-display="flex" data-align-items="center">
    <!-- <CodeEditor bind:code language="javascript" template="js" placeholder="1. Create slides with Svelte Components." /> -->
-   <MarkdownIt {content} />
+   <HighlightProvider>
+      <MarkdownIt {content} />
+   </HighlightProvider>
 </div>
 
 <style>

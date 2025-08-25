@@ -1,7 +1,8 @@
 <script lang="ts">
    import { typewriter } from '$lib/vfx/typewriter.js'
-   import CodeEditor from '../_components/CodeEditorWrapper.svelte'
-   import MarkdownIt from '../_components/MarkdownItWrapper.svelte'
+   import HighlightProvider from '../_components/HighlightProvider.svelte'
+   import CodeEditor from '$lib/components/CodeEditor.svelte'
+   import MarkdownIt from '$lib/components/MarkdownIt.svelte'
    import content from '../_content/5.md?raw'
    import codeText from '../_content/slide-5-example.txt?raw'
 
@@ -11,7 +12,9 @@
 <div id="view" {@attach typewriter("That's it.")}></div>
 <!-- <div id="svelte"></div> -->
 <div id="code">
-   <CodeEditor bind:code language="javascript" template="js" />
+   <HighlightProvider>
+      <CodeEditor bind:code language="javascript" template="js" />
+   </HighlightProvider>
    <!-- <MarkdownIt {content} /> -->
 </div>
 

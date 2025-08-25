@@ -1,7 +1,7 @@
 <script lang="ts">
    import { onMount } from "svelte";
    import { initializeCodeInput, type CodeInput } from "../code-input/index.js";
-   import { type HLJSApi } from "$lib/types/hljs.js";
+   import { getHljsContext } from "$lib/contexts/hljs.js";
 
    let {
       code = $bindable(),
@@ -9,18 +9,18 @@
       template,
       placeholder = "",
       theme,
-      hljs,
    }: {
       code: string;
       language: string;
       template: string;
       placeholder?: string;
       theme?: string;
-      hljs?: HLJSApi;
    } = $props();
 
    let codeInput: CodeInput | null = null;
    let isInitialized = $state(false);
+
+   const hljs = getHljsContext();
 
    onMount(async () => {
       try {

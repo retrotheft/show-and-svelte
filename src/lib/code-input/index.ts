@@ -61,7 +61,7 @@ export async function initializeCodeInput(theme?: string): Promise<CodeInput> {
 
 	// Start initialization and store the promise
 	initializationPromise = performInitialization(theme);
-	
+
 	try {
 		const result = await initializationPromise;
 		initializationPromise = null; // Clear the promise when done
@@ -75,13 +75,13 @@ export async function initializeCodeInput(theme?: string): Promise<CodeInput> {
 async function performInitialization(theme?: string): Promise<CodeInput> {
 
 	// Load default or custom theme
-	const themeUrl = theme || 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.css';
-	if (!document.querySelector(`link[href="${themeUrl}"]`)) {
-		const themeLink = document.createElement('link');
-		themeLink.rel = 'stylesheet';
-		themeLink.href = themeUrl;
-		document.head.appendChild(themeLink);
-	}
+	// const themeUrl = theme || 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.css';
+	// if (!document.querySelector(`link[href="${themeUrl}"]`)) {
+	// 	const themeLink = document.createElement('link');
+	// 	themeLink.rel = 'stylesheet';
+	// 	themeLink.href = themeUrl;
+	// 	document.head.appendChild(themeLink);
+	// }
 
 	// Load essential CSS (only code-input.min.css is needed)
 	const cssFiles = ['/code-input.min.css'];
@@ -96,7 +96,7 @@ async function performInitialization(theme?: string): Promise<CodeInput> {
 	}
 
 	console.log('Starting code-input initialization...')
-	
+
 	// Load core code-input script first
 	if (!document.querySelector('script[src="/code-input-custom.js"]')) {
 		console.log('Loading core code-input script...')
@@ -123,7 +123,7 @@ async function performInitialization(theme?: string): Promise<CodeInput> {
 		{ file: '/indent.min.js', name: 'Indent' },
 		{ file: '/auto-close-brackets.min.js', name: 'AutoCloseBrackets' }
 	];
-	
+
 	for (const plugin of pluginFiles) {
 		if (!document.querySelector(`script[src="${plugin.file}"]`)) {
 			console.log('Loading plugin:', plugin.file)
