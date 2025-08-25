@@ -54,28 +54,19 @@ export function transferStylesToMarks(
    marks: HTMLElement[],
    stageState: { updates: number }
 ) {
-   while (virtualStage.firstChild) virtualStage.firstChild.remove();
+   clearVirtualStage(virtualStage)
    marks.forEach(mark => {
       mark.innerHTML = ""
    })
    scene.forEach(element => {
-      let clone = cloneMap.get(element)
-      if (!clone) {
-         clone = element.cloneNode(true) as HTMLElement
-         clone.style.position = "absolute"
-         cloneMap.set(element, clone)
-      }
+      const clone = getOrCreateClone(element)
       virtualStage.appendChild(clone)
 
-      const computedStyle = getComputedStyle(clone);
       const actor = element.tagName + (element.id ? `#${element.id}` : '');
       const mark = marks.find(m => m.dataset.actor === actor);
 
       if (mark) {
-         for (const [property, value] of Object.entries(computedStyle)) {
-            if (property !== "display") mark.style.setProperty(property, value);
-            element.style.setProperty(property, "");
-         }
+         transferComputedStyles(clone, mark, element)
          setupTransitionEvents(mark, element)
          mark.style.transition = 'all 0.5s ease';
          element.id = "";
@@ -86,7 +77,6 @@ export function transferStylesToMarks(
          }
          if (element.dataset.pointerEvents) mark.style.pointerEvents = element.dataset.pointerEvents
          mark.replaceChildren(element);
-         console.log(mark)
          mark.classList.add('ready');
 
       }
@@ -98,11 +88,7 @@ export function transferStylesToMarks(
 // much less relevant now that sceneMap uses arrays instead of HTMLCollections
 // but still useful as an alternative mode where undeclared elements get cleared instead of persisting
 // that said, it only needs to clear the mark, so it's still doing too much
-export function restoreElementsFromMarks(
-   marks: HTMLElement[],
-   sceneNumber: number,
-   sceneMap: SvelteMap<number, HTMLElement[]>
-) {
+export function restoreElementsFromMarks(marks: HTMLElement[]) {
    const currentSceneElements: HTMLElement[] = [];
 
    marks.forEach(mark => {
@@ -117,10 +103,8 @@ export function restoreElementsFromMarks(
          }
 
          currentSceneElements.push(element);
-         // mark.replaceChildren();
       }
    });
-   // sceneMap.set(sceneNumber, currentSceneElements);
 }
 
 export function createSceneController(
@@ -163,4 +147,28 @@ function setupTransitionEvents(mark: HTMLElement, element: HTMLElement) {
       element.dispatchEvent(syntheticEvent);
       transitionSet.delete(mark)
    }
+}
+
+function getOrCreateClone(element: HTMLElement): HTMLElement {
+   let clone = cloneMap.get(element);
+   if (!clone) {
+      clone = element.cloneNode(true) as HTMLElement;
+      clone.style.position = "absolute";
+      cloneMap.set(element, clone);
+   }
+   return clone;
+}
+
+function clearVirtualStage(stage: HTMLElement) {
+   while (stage.firstChild) stage.firstChild.remove();
+}
+
+// takes computed styles from clone and adds them to the mark, then clears styles from the element
+function transferComputedStyles(clone: HTMLElement, mark: HTMLElement, element: HTMLElement) {
+   const computedStyle = getComputedStyle(clone)
+   for (const [property, value] of Object.entries(computedStyle)) {
+      if (property !== "display") mark.style.setProperty(property, value);
+      element.style.setProperty(property, "");
+   }
+
 }
