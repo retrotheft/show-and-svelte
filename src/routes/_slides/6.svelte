@@ -2,10 +2,18 @@
    import { typewriter } from '$lib/vfx/typewriter.js'
 </script>
 
+<div id="view"></div>
 <div id="svelte" {@attach typewriter("Well, one more thing.")}></div>
 <div id="code"></div>
 
 <style>
+   div#view {
+      place-self: start center;
+      color: cornflowerblue;
+      width: 30ch;
+      white-space: nowrap;
+   }
+
    div#svelte {
       transform: translate(10vh, 30vh);
       color: #ccc;

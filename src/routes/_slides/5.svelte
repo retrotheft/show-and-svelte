@@ -14,7 +14,7 @@
 
 <style>
    div#view {
-      color: violet;
+      color: lightgreen;
       place-self: center;
       width: 30ch;
       white-space: nowrap;

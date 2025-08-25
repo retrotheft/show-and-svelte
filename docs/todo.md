@@ -1,5 +1,13 @@
 # Svelte Movie Maker Todo
 
+## Steps to release
+
+- [ ] Add props for Stage component
+- [ ] Add props for Markdown component
+- [ ] Add props for CodeEditor component
+- [ ] Move teaser presentation to a separate project.
+- [ ] Build and release.
+
 - [x] get styling as minimal as possible
 - [x] convert AutoType to an attachment
 - [x] Make interactive Video! Doesn't need to be very long. Just show the components.

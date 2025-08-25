@@ -14,7 +14,7 @@
    div#view {
       place-self: center;
       transform: translate(-3ch, -100%);
-      color: cornflowerblue;
+      color: violet;
       width: 30ch;
       white-space: nowrap;
    }

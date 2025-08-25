@@ -17,7 +17,7 @@
 
 <style>
    div#view {
-      color: lightgreen;
+      color: cornflowerblue;
       place-self: center;
       /*transform: translateY(50vh);*/
       white-space: nowrap;

@@ -4,7 +4,7 @@
    import { typewriter } from '$lib/vfx/typewriter.js';
 </script>
 
-<div id="svelte" {@attach typewriter("Wheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", 150)} {...movable} data-position="absolute" data-display="block"></div>
+<div id="svelte" {@attach typewriter("Wheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", 150)} {...movable} data-position="absolute" data-display="block" data-user-select="none"></div>
 <div id="clapper2"></div>
 
 <style>
@@ -14,6 +14,7 @@
       color: yellow;
       width: 30ch;
       cursor: move;
+      background-color: black;
    }
 
    div#clapper2 {
