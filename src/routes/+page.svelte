@@ -1,5 +1,7 @@
 <script lang="ts">
    import "../app.css";
+   import MarkdownIt from '$lib/components/MarkdownIt.svelte'
+   import markdown from './_content/markdown-example.md?raw'
 
    import { Stage } from "$lib/index.js";
    import Scene0 from './_slides/0.svelte'
@@ -13,6 +15,9 @@
    import Scene7 from "./_slides/7.svelte"
    import Scene8 from "./_slides/8.svelte"
 </script>
+
+<!-- <MarkdownIt content={markdown} /> -->
+
 
 <Stage>
    <Scene0 />

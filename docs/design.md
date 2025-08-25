@@ -26,3 +26,11 @@ mark.onmousedown = (event: MouseEvent) => {
    element.onmousedown?.(event)
 }
 ```
+
+## Attachments
+
+Instead of using stageState updates to trigger, is there a way of auto-triggering an element so that the attachment reruns?
+
+Or rather, can I just modify typewriter to detect when the element is on the screen?
+
+Or maybe I can wrap attachments in some fashion.
