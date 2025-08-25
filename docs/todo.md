@@ -2,8 +2,8 @@
 
 ## Next
 
-- [ ] Remove dependencies
-   - [ ] hljs (pass object into CodeEditor and Markdown)
+- [x] Remove dependencies
+   - [x] hljs (pass object into CodeEditor and Markdown)
 
 ## Steps to release
 
@@ -44,3 +44,5 @@ Is a bit annoying when designing each slide - having an easy way to view them wi
 
 Think I'd prefer elements stay where they are if no element present in next slide. This would allow persistence without
  syntax and encourage off screen placement of unused elements.
+
+`pointer-events` are problematic to transfer, for multiple reasons.

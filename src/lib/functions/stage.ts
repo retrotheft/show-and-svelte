@@ -113,6 +113,8 @@ export function transferStylesToMarks(
             // @ts-expect-error 7015
             if (key in element.style) element.style[key] = element.dataset[key]
          }
+         if (element.dataset.pointerEvents) mark.style.pointerEvents = element.dataset.pointerEvents
+         console.log(element.dataset)
          // element.style.visibility = "visible"
          mark.replaceChildren(element);
          mark.classList.add('ready');

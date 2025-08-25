@@ -121,7 +121,7 @@ export function createMovable(): DollarStoreAttachment {
    }
 
    function setupMovable(element: Element): (() => void) {
-      // console.log("Setting up movable", reactiveValue)
+      // const lastUpdate = stageState.updates
       const htmlElement = element as HTMLElement;
 
       // Set essential movable styles

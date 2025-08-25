@@ -16,10 +16,6 @@
       line-height: 1lh;
    }
 
-   /*div#view::before {
-      content: '\200B';
-   }*/
-
    div#svelte {
       transform: translate(10vh, 30vh);
       color: #ccc;
