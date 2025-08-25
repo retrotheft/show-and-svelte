@@ -1,5 +1,10 @@
 # Svelte Movie Maker Todo
 
+## Next
+
+- [ ] Remove dependencies
+   - [ ] hljs (pass object into CodeEditor and Markdown)
+
 ## Steps to release
 
 - [ ] Add props for Stage component
@@ -11,7 +16,7 @@
 
 ## Ideal to solve before release
 
-- [ ] Transition hooks!
+- [ ] simplify code-input
 - [ ] pass hljs into CodeEditor and Markdown
 - [ ] Maybe even code input? (I think they use another syntax highlighting library?)
 - [ ] AutoType resetting on slide load, and with innerText
@@ -19,6 +24,7 @@
 
 ## Done
 
+- [x] Transition hooks! (probably worth having... not as useful as imagined though)
 - [x] get styling as minimal as possible
 - [x] convert AutoType to an attachment
 - [x] Make interactive Video! Doesn't need to be very long. Just show the components.

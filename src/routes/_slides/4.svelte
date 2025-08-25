@@ -1,7 +1,7 @@
 <script lang="ts">
    import { typewriter } from "$lib/vfx/typewriter.js";
    import CodeEditor from '$lib/components/CodeEditor.svelte'
-   import MarkdownIt from "$lib/components/MarkdownIt.svelte";
+   import MarkdownIt from '../_components/MarkdownItWrapper.svelte'
    import content from '../_content/4.md?raw'
 
    let code = $state(``)

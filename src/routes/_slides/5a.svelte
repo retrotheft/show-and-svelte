@@ -1,6 +1,6 @@
 <script lang="ts">
    import { typewriter } from '$lib/vfx/typewriter.js'
-   import MarkdownIt from '$lib/components/MarkdownIt.svelte'
+   import MarkdownIt from '../_components/MarkdownItWrapper.svelte'
    import content from '../_content/5a.md?raw'
 </script>
 
