@@ -55,9 +55,11 @@ export function transferStylesToMarks(
    stageState: { updates: number }
 ) {
    while (virtualStage.firstChild) virtualStage.firstChild.remove();
+   marks.forEach(mark => {
+      mark.innerHTML = ""
+   })
    scene.forEach(element => {
-      let clone: HTMLElement | undefined;
-      clone = cloneMap.get(element)
+      let clone = cloneMap.get(element)
       if (!clone) {
          clone = element.cloneNode(true) as HTMLElement
          clone.style.position = "absolute"
@@ -65,58 +67,26 @@ export function transferStylesToMarks(
       }
       virtualStage.appendChild(clone)
 
-
-      // const style = getComputedStyle(element);
       const computedStyle = getComputedStyle(clone);
       const actor = element.tagName + (element.id ? `#${element.id}` : '');
       const mark = marks.find(m => m.dataset.actor === actor);
 
       if (mark) {
-         // Transfer all computed styles to mark
          for (const [property, value] of Object.entries(computedStyle)) {
             if (property !== "display") mark.style.setProperty(property, value);
             element.style.setProperty(property, "");
          }
-         mark.ontransitionstart = (event: TransitionEvent) => {
-            if (transitionSet.has(mark)) return
-            transitionSet.add(mark)
-
-            // This fires once per frame, regardless of property count
-            const syntheticEvent = new TransitionEvent('transitionstart', {
-               propertyName: 'mark', // Generic for multiple properties
-               elapsedTime: 0,      // Start of batched transition
-               pseudoElement: event.pseudoElement,
-               bubbles: false,
-               cancelable: true
-            });
-            element.dispatchEvent(syntheticEvent);
-         }
-         mark.ontransitionend = (event: TransitionEvent) => {
-            if (!transitionSet.has(mark)) return
-            const syntheticEvent = new TransitionEvent('transitionend', {
-               propertyName: 'mark',
-               elapsedTime: event.elapsedTime,
-               pseudoElement: event.pseudoElement,
-               bubbles: false,
-               cancelable: true
-            });
-
-            element.dispatchEvent(syntheticEvent);
-            transitionSet.delete(mark)
-         }
+         setupTransitionEvents(mark, element)
          mark.style.transition = 'all 0.5s ease';
          element.id = "";
-         // display: contents is the dream, but attachments are currently preventing this
          element.style.display = "contents"
-         // element.style.position = "absolute"
          for (const key in element.dataset) {
             // @ts-expect-error 7015
             if (key in element.style) element.style[key] = element.dataset[key]
          }
          if (element.dataset.pointerEvents) mark.style.pointerEvents = element.dataset.pointerEvents
-         console.log(element.dataset)
-         // element.style.visibility = "visible"
          mark.replaceChildren(element);
+         console.log(mark)
          mark.classList.add('ready');
 
       }
@@ -147,10 +117,10 @@ export function restoreElementsFromMarks(
          }
 
          currentSceneElements.push(element);
-         mark.replaceChildren();
+         // mark.replaceChildren();
       }
    });
-   sceneMap.set(sceneNumber, currentSceneElements);
+   // sceneMap.set(sceneNumber, currentSceneElements);
 }
 
 export function createSceneController(
@@ -163,4 +133,34 @@ export function createSceneController(
       stageState.updates++;
       return Math.max(0, Math.min(sceneMap.size - 1, currentScene + value));
    };
+}
+
+function setupTransitionEvents(mark: HTMLElement, element: HTMLElement) {
+   mark.ontransitionstart = (event: TransitionEvent) => {
+      if (transitionSet.has(mark)) return
+      transitionSet.add(mark)
+
+      // This fires once per frame, regardless of property count
+      const syntheticEvent = new TransitionEvent('transitionstart', {
+         propertyName: 'mark', // Generic for multiple properties
+         elapsedTime: 0,      // Start of batched transition
+         pseudoElement: event.pseudoElement,
+         bubbles: false,
+         cancelable: true
+      });
+      element.dispatchEvent(syntheticEvent);
+   }
+   mark.ontransitionend = (event: TransitionEvent) => {
+      if (!transitionSet.has(mark)) return
+      const syntheticEvent = new TransitionEvent('transitionend', {
+         propertyName: 'mark',
+         elapsedTime: event.elapsedTime,
+         pseudoElement: event.pseudoElement,
+         bubbles: false,
+         cancelable: true
+      });
+
+      element.dispatchEvent(syntheticEvent);
+      transitionSet.delete(mark)
+   }
 }
