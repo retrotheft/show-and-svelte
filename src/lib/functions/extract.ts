@@ -5,7 +5,6 @@ export function extract(children: Snippet): DocumentFragment {
 	let result: unknown
 	// @ts-expect-error 2554
 	children({ before:  (array) => result = array })
-	console.log(result)
 	return result as DocumentFragment
 }
 

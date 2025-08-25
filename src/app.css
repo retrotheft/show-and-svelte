@@ -14,3 +14,11 @@ body {
 #app {
    position: relative;
 }
+
+/*:empty::before {
+   content: '\200B';
+}*/
+
+:empty:not(hr):not(br):not(img):not(input):not(area):not(base):not(col):not(embed):not(link):not(meta):not(source):not(track):not(wbr)::before {
+  content: '\200B';
+}

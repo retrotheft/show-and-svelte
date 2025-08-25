@@ -2,6 +2,7 @@ import { SvelteMap } from "svelte/reactivity";
 import { untrack } from "svelte";
 
 const cloneMap = new Map<HTMLElement, HTMLElement>()
+const transitionSet = new Set<HTMLElement>()
 
 export function setupSceneMap(templates: HTMLTemplateElement[]): SvelteMap<number, HTMLElement[]> {
    const map = new SvelteMap<number, HTMLElement[]>()
@@ -54,11 +55,9 @@ export function transferStylesToMarks(
    stageState: { updates: number }
 ) {
    while (virtualStage.firstChild) virtualStage.firstChild.remove();
-   console.log("TRANSFER: Starting with scene elements:", scene.map(el => el.id + " " + el.tagName));
    scene.forEach(element => {
       let clone: HTMLElement | undefined;
       clone = cloneMap.get(element)
-      if (clone) console.log(clone.style)
       if (!clone) {
          clone = element.cloneNode(true) as HTMLElement
          clone.style.position = "absolute"
@@ -72,13 +71,38 @@ export function transferStylesToMarks(
       const actor = element.tagName + (element.id ? `#${element.id}` : '');
       const mark = marks.find(m => m.dataset.actor === actor);
 
-      console.log("TRANSFER: Element", element.id, "→ Actor:", actor, "→ Found mark:", !!mark);
-
       if (mark) {
          // Transfer all computed styles to mark
          for (const [property, value] of Object.entries(computedStyle)) {
             if (property !== "display") mark.style.setProperty(property, value);
             element.style.setProperty(property, "");
+         }
+         mark.ontransitionstart = (event: TransitionEvent) => {
+            if (transitionSet.has(mark)) return
+            transitionSet.add(mark)
+
+            // This fires once per frame, regardless of property count
+            const syntheticEvent = new TransitionEvent('transitionstart', {
+               propertyName: 'mark', // Generic for multiple properties
+               elapsedTime: 0,      // Start of batched transition
+               pseudoElement: event.pseudoElement,
+               bubbles: false,
+               cancelable: true
+            });
+            element.dispatchEvent(syntheticEvent);
+         }
+         mark.ontransitionend = (event: TransitionEvent) => {
+            if (!transitionSet.has(mark)) return
+            const syntheticEvent = new TransitionEvent('transitionend', {
+               propertyName: 'mark',
+               elapsedTime: event.elapsedTime,
+               pseudoElement: event.pseudoElement,
+               bubbles: false,
+               cancelable: true
+            });
+
+            element.dispatchEvent(syntheticEvent);
+            transitionSet.delete(mark)
          }
          mark.style.transition = 'all 0.5s ease';
          element.id = "";
@@ -92,8 +116,7 @@ export function transferStylesToMarks(
          // element.style.visibility = "visible"
          mark.replaceChildren(element);
          mark.classList.add('ready');
-      } else {
-         console.log("TRANSFER: NO MARK FOUND for", actor);
+
       }
 
       untrack(() => stageState.updates++);
@@ -125,7 +148,6 @@ export function restoreElementsFromMarks(
          mark.replaceChildren();
       }
    });
-   console.log("Restored elements for scene", sceneNumber, ":", currentSceneElements.map(el => el.id + " " + el.tagName));
    sceneMap.set(sceneNumber, currentSceneElements);
 }
 

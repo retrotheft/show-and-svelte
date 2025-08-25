@@ -6,7 +6,18 @@
 - [ ] Add props for Markdown component
 - [ ] Add props for CodeEditor component
 - [ ] Move teaser presentation to a separate project.
+- [ ] Add mode switch for persistent vs removed elements
 - [ ] Build and release.
+
+## Ideal to solve before release
+
+- [ ] Transition hooks!
+- [ ] pass hljs into CodeEditor and Markdown
+- [ ] Maybe even code input? (I think they use another syntax highlighting library?)
+- [ ] AutoType resetting on slide load, and with innerText
+- [ ] A basic REPL? (ok this is a bit ambitious)
+
+## Done
 
 - [x] get styling as minimal as possible
 - [x] convert AutoType to an attachment

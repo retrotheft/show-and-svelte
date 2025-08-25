@@ -8,11 +8,17 @@
 
 <style>
    div#view {
-      place-self: start center;
-      color: cornflowerblue;
+      place-self: center;
+      transform: translate(-3ch, -100%);
+      color: violet;
       width: 30ch;
       white-space: nowrap;
+      line-height: 1lh;
    }
+
+   /*div#view::before {
+      content: '\200B';
+   }*/
 
    div#svelte {
       transform: translate(10vh, 30vh);
