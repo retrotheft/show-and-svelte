@@ -1,11 +1,11 @@
 <script lang="ts">
-   // import { movable } from '$lib/attachments/movable.js'
-   import { movable } from 'attach-this'
+   import { movable } from '$lib/attachments/movable.js'
+   // import { movable } from 'attach-this'
    import { typewriter } from '$lib/vfx/typewriter.js';
 </script>
 
-<div id="svelte" {@attach typewriter("Wheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", 150)} {...movable} data-position="absolute" data-display="block" data-user-select="none"></div>
-<div id="clapper2" data-pointer-events="none"></div>
+<div id="svelte" {@attach typewriter("Wheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", 150)} {...movable} data-position="absolute" data-user-select="none"></div>
+<div id="clapper2" data-pointer-events="none" data-text-align="center"></div>
 <div id="view"></div>
 
 <style>
@@ -26,14 +26,13 @@
       cursor: move;
       background-color: black;
       pointer-events: all;
+      justify-content: start;
    }
 
    div#clapper2 {
       opacity: 0;
       place-self: center;
-      pointer-events: none;
-      /*visibility: hidden;*/
       transform: scale(5);
-      width: 11ch;
+      width: 12ch;
    }
 </style>

@@ -7,19 +7,17 @@
 
 ## Steps to release
 
-- [ ] Add props for Stage component
-- [ ] Add props for Markdown component
-- [ ] Add props for CodeEditor component
-- [ ] Move teaser presentation to a separate project.
-- [ ] Add mode switch for persistent vs removed elements
+- [x] Add props for Stage component
+- [x] Add props for Markdown component
+- [x] Add props for CodeEditor component
+- [x] Move teaser presentation to a separate project.
+- [ ] How to set marks up as transparently as possible?
 - [ ] Build and release.
 
 ## Ideal to solve before release
 
-- [ ] simplify code-input
-- [ ] pass hljs into CodeEditor and Markdown
-- [ ] Maybe even code input? (I think they use another syntax highlighting library?)
-- [ ] AutoType resetting on slide load, and with innerText
+- [x] simplify code-input
+- [x] pass hljs into CodeEditor and Markdown
 - [ ] A basic REPL? (ok this is a bit ambitious)
 
 ## Done
@@ -46,3 +44,11 @@ Think I'd prefer elements stay where they are if no element present in next slid
  syntax and encourage off screen placement of unused elements.
 
 `pointer-events` are problematic to transfer, for multiple reasons.
+
+It seems as though a significant number of styles, including `text-align`, don't make it onto the mark despite being set in the slides. This might suggest that we need to get more styles from the element onto the clone?
+
+Could it be that because we haven't appended the elements to the DOM, the clones are missing styles?
+
+`justify-content` on `[data-actor]` doesn't get overriden by styles in slides.
+
+Need a solution where the scene element can fill

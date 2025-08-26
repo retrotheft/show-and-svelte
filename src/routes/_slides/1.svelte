@@ -10,7 +10,7 @@
       color: orangered;
       place-self: center;
       width: 34ch;
-      text-align: center;
+      text-align: left;
    }
 
    div#view {

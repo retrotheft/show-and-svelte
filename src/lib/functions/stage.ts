@@ -27,6 +27,7 @@ export function setupVirtualStage(callback: Function) {
          virtualStage.style.setProperty(property, value)
       }
       virtualStage.style.position = 'absolute';
+      virtualStage.style.inset = '0';
       virtualStage.style.left = '-9999px';
       virtualStage.style.top = '-9999px';
       virtualStage.style.zIndex = '-1';
@@ -66,7 +67,7 @@ export function transferStylesToMarks(
          setupTransitionEvents(mark, element)
          element.id = "";
          mark.replaceChildren(element);
-         mark.style.border = "1px dashed hotpink"
+
          mark.classList.add('ready');
       }
    });
@@ -141,7 +142,9 @@ function transferComputedStyles(clone: HTMLElement, mark: HTMLElement, element: 
       element.style.setProperty(property, "");
    }
    mark.style.transition = 'all 0.5s ease';
-   element.style.display = "contents"
+   // element.style.display = "contents"
+   mark.style.border = "1px dashed hotpink"
+   element.style.background = "hsla(220, 50%, 50%, 50%)"
    for (const key in element.dataset) {
       // @ts-expect-error 7015
       if (key in element.style) element.style[key] = element.dataset[key]

@@ -6,8 +6,6 @@
 
    const hljs = getHljsContext();
 
-   console.log(hljs)
-
    const md = markdownit({
       highlight: function (str, lang) {
          if (lang && hljs.getLanguage(lang)) {

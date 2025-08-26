@@ -4,23 +4,23 @@ main {
    height: var(--height);
    border: 1px solid grey;
    display: grid;
+   place-items: center;
 }
 
 [data-actor] {
    transition: all 0.5s linear;
    position: absolute;
    display: flex;
+   align-items: center;
    opacity: 0;
+
+   & > * {
+      flex-grow: 1;
+   }
 }
 
 [data-actor].ready {
    opacity: 1;
-}
-
-#virtual-stage {
-   position: absolute;
-   inset: 0;
-   z-index: -1;
 }
 
 :empty:not(hr):not(br):not(img):not(input):not(area):not(base):not(col):not(embed):not(link):not(meta):not(source):not(track):not(wbr)::before {

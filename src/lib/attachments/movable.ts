@@ -65,7 +65,6 @@ export function createMovable(): DollarStoreAttachment {
 
       const element = event.currentTarget as HTMLElement;
       const computedStyle = getComputedStyle(element);
-      // element.style.position = "absolute"
       // element.style.display = "block"
       // Bring to front
       moveToBack(element);
