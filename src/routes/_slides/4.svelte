@@ -11,7 +11,7 @@
 <div id="view">Instructions</div>
 <div id="svelte"></div>
 <!-- <div id="code" {@attach typewriter("1. Create slides from Svelte components.")}></div> -->
-<div id="code" data-inset="0" data-display="flex" data-align-items="center">
+<div id="code" data-inset="0">
    <!-- <CodeEditor bind:code language="javascript" template="js" placeholder="1. Create slides with Svelte Components." /> -->
    <HighlightProvider>
       <MarkdownIt {content} />
