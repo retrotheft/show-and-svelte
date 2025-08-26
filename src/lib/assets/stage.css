@@ -2,7 +2,6 @@ main {
    position: relative;
    width: var(--width);
    height: var(--height);
-   border: 1px solid grey;
    display: grid;
    place-items: center;
 }

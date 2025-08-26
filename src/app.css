@@ -1,16 +1,20 @@
 body {
    background-color: black;
-   /*display: grid;
+   display: grid;
    height: 100vh;
    font-family: "Quicksand";
    font-weight: 700;
    margin: 0;
    padding: 0;
    overflow: hidden;
-   place-items: center;*/
+   place-items: center;
    font-size: 5rem;
 }
 
 #app {
    position: relative;
+}
+
+iframe {
+   border: none;
 }

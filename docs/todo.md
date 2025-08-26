@@ -2,17 +2,9 @@
 
 ## Next
 
-- [x] Remove dependencies
-   - [x] hljs (pass object into CodeEditor and Markdown)
-
-## Steps to release
-
-- [x] Add props for Stage component
-- [x] Add props for Markdown component
-- [x] Add props for CodeEditor component
-- [x] Move teaser presentation to a separate project.
-- [ ] How to set marks up as transparently as possible?
-- [ ] Build and release.
+- [ ] update package.json with more metadata including repository url
+- [ ] finalise build settings for single-file js presentations
+- [ ] build Presentation component that receives the js file
 
 ## Ideal to solve before release
 
@@ -22,6 +14,14 @@
 
 ## Done
 
+- [x] Remove dependencies
+   - [x] hljs (pass object into CodeEditor and Markdown)
+- [x] Add props for Stage component
+- [x] Add props for Markdown component
+- [x] Add props for CodeEditor component
+- [x] Move teaser presentation to a separate project.
+- [x] How to set marks up as transparently as possible?
+- [x] Build and release.
 - [x] Transition hooks! (probably worth having... not as useful as imagined though)
 - [x] get styling as minimal as possible
 - [x] convert AutoType to an attachment

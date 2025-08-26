@@ -11,9 +11,7 @@ export function setupSceneMap(templates: HTMLTemplateElement[]): SvelteMap<numbe
 
 export function setupSceneActorSet(sceneMap: SvelteMap<number, HTMLElement[]>): Set<string> {
    const array = [];
-   for (const collection of sceneMap.values()) {
-      array.push(...collection);
-   }
+   for (const collection of sceneMap.values()) array.push(...collection)
    const set = new Set<string>()
    for (const element of array) set.add(`${element.tagName}#${element.id}`)
    return set
@@ -120,11 +118,11 @@ function setupTransitionEvents(mark: HTMLElement, element: HTMLElement) {
 
 function getOrCreateClone(element: HTMLElement): HTMLElement {
    let clone = cloneMap.get(element);
-   if (!clone) {
-      clone = element.cloneNode(true) as HTMLElement;
-      clone.style.position = "absolute";
-      cloneMap.set(element, clone);
-   }
+   if (clone) return clone
+
+   clone = element.cloneNode(true) as HTMLElement;
+   clone.style.position = "absolute";
+   cloneMap.set(element, clone);
    return clone;
 }
 

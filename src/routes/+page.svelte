@@ -12,16 +12,27 @@
    import Scene6 from "./_slides/6.svelte"
    import Scene7 from "./_slides/7.svelte"
    import Scene8 from "./_slides/8.svelte"
+
+   import { PresentationViewer } from '$lib/index.js'
 </script>
 
-<Stage>
-   <Scene0 />
-   <Scene1 />
-   <Scene3 />
-   <Scene4 />
-   <Scene5 />
-   <Scene5a />
-   <Scene6 />
-   <Scene7 />
-   <Scene8 />
-</Stage>
+<!-- <div>
+   <Stage>
+      <Scene0 />
+      <Scene1 />
+      <Scene3 />
+      <Scene4 />
+      <Scene5 />
+      <Scene5a />
+      <Scene6 />
+      <Scene7 />
+      <Scene8 />
+   </Stage>
+</div> -->
+<PresentationViewer />
+
+<style>
+   div {
+      border: 1px solid grey;
+   }
+</style>
