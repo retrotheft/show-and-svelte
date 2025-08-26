@@ -11,7 +11,7 @@ main {
    transition: all 0.5s linear;
    position: absolute;
    display: flex;
-   align-items: center;
+   align-items: stretch;
    opacity: 0;
 
    & > * {
