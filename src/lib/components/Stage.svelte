@@ -1,38 +1,27 @@
 <script lang="ts" module>
-   export const stageState = $state({
-      updates: 0,
+   export const stageState = $state<{ updates: number[] }>({
+      updates: [],
    })
 </script>
 
 <script lang="ts">
-   import { extractSceneMapFromChildren, extractAndRemoveSceneMapFromChildren } from "$lib/functions/extract.js";
-   import { setupSceneActorSet, setupSceneMap, setupVirtualStage, setupMarks, transferStylesToMarks, restoreElementsFromMarks, createSceneController } from "$lib/functions/stage.js";
+   import { extractSceneMapFromChildren } from "$lib/functions/extract.js";
+   import { setupSceneActorSet, setupVirtualStage, setupMarks, transferStylesToMarks, restoreElementIds } from "$lib/functions/stage.js";
    import { onMount } from "svelte";
    import { SvelteMap } from "svelte/reactivity";
-
-   let angle = $state(0)
+   import '$lib/assets/stage.css'
 
    let { children } = $props();
 
    let currentScene = $state(0);
-   let stageElement = $state<HTMLElement>();
-   let actorsDiv = $state<HTMLDivElement>()
+   let stageElement = $state<HTMLElement>()
 
-   // const templates = extractTemplatesFromChildren(children);
    const sceneMap: SvelteMap<number, HTMLElement[]> = extractSceneMapFromChildren(children);
 
    const sceneActorSet = setupSceneActorSet(sceneMap);
    let virtualStage = $state.raw<HTMLElement>();
    const marks = $state.raw<HTMLElement[]>(setupMarks(sceneActorSet));
    const setVirtualStage = (element: HTMLElement) => virtualStage = element;
-
-   // can switch persistence mode by switching callback
-   const nextSceneController = createSceneController(
-      sceneMap,
-      (sceneNumber) => restoreElementsFromMarks(marks, sceneNumber, sceneMap),
-      // (sceneNumber) => {},
-      stageState
-   );
 
    onMount(() => {
       if (!stageElement || !virtualStage) return;
@@ -44,62 +33,24 @@
    function hitMarks() {
       const scene = sceneMap.get(currentScene);
       if (!scene || !virtualStage) return;
-      transferStylesToMarks(scene, virtualStage, marks, stageState);
+      transferStylesToMarks(scene, virtualStage, marks);
    }
 
    function nextScene(value: number = 1) {
-      currentScene = nextSceneController(currentScene, value);
-      hitMarks()
+      restoreElementIds(marks);
+      stageState.updates.push(Date.now());
+      currentScene = Math.max(0, Math.min(sceneMap.size - 1, currentScene + value));
+      hitMarks();
    }
 
    function onkeydown(event: KeyboardEvent) {
       if (event.code === "ArrowLeft" || event.code === "KeyA") return nextScene(-1);
       if (event.code === "ArrowRight" || event.code === "KeyD") return nextScene(1);
-      if (event.code === "ArrowUp") return console.log(sceneMap)
    }
 </script>
 
 <svelte:window {onkeydown} />
 
-<main bind:this={stageElement} {@attach setupVirtualStage(setVirtualStage)} style={`--angle: ${angle}deg;`}>
+<main bind:this={stageElement} {@attach setupVirtualStage(setVirtualStage)}>
    <!-- {@render children?.()} -->
 </main>
-
-<style>
-   main {
-      /*box-sizing: border-box;*/
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      width: 1940px;
-      height: 1100px;
-      border: 1px solid grey;
-      display: grid;
-      /*place-items: center;*/
-      background-color: black;
-
-   }
-
-   :global([data-actor]) {
-      transition: all 0.5s linear;
-      position: absolute;
-      display: flex;
-      /*align-items: center;*/
-      /*justify-content: center;*/
-      opacity: 0;
-   }
-
-   :global([data-actor].ready) {
-      opacity: 1;
-   }
-
-   :global(#virtual-stage) {
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-
-      /*> * {
-         position: absolute;
-      }*/
-   }
-</style>

@@ -1,5 +1,4 @@
 import { SvelteMap } from "svelte/reactivity";
-import { untrack } from "svelte";
 
 const cloneMap = new Map<HTMLElement, HTMLElement>()
 const transitionSet = new Set<HTMLElement>()
@@ -52,45 +51,27 @@ export function transferStylesToMarks(
    scene: HTMLElement[],
    virtualStage: HTMLElement,
    marks: HTMLElement[],
-   stageState: { updates: number }
 ) {
    clearVirtualStage(virtualStage)
-   marks.forEach(mark => {
-      mark.innerHTML = ""
-   })
+   marks.forEach(mark => mark.innerHTML = "")
    scene.forEach(element => {
       const clone = getOrCreateClone(element)
       virtualStage.appendChild(clone)
 
-      const actor = element.tagName + (element.id ? `#${element.id}` : '');
+      const actor = getActorString(element)
       const mark = marks.find(m => m.dataset.actor === actor);
 
       if (mark) {
          transferComputedStyles(clone, mark, element)
          setupTransitionEvents(mark, element)
-         mark.style.transition = 'all 0.5s ease';
          element.id = "";
-         element.style.display = "contents"
-         for (const key in element.dataset) {
-            // @ts-expect-error 7015
-            if (key in element.style) element.style[key] = element.dataset[key]
-         }
-         if (element.dataset.pointerEvents) mark.style.pointerEvents = element.dataset.pointerEvents
          mark.replaceChildren(element);
          mark.classList.add('ready');
-
       }
-
-      untrack(() => stageState.updates++);
    });
 }
 
-// much less relevant now that sceneMap uses arrays instead of HTMLCollections
-// but still useful as an alternative mode where undeclared elements get cleared instead of persisting
-// that said, it only needs to clear the mark, so it's still doing too much
-export function restoreElementsFromMarks(marks: HTMLElement[]) {
-   const currentSceneElements: HTMLElement[] = [];
-
+export function restoreElementIds(marks: HTMLElement[]) {
    marks.forEach(mark => {
       if (mark.firstElementChild) {
          const element = mark.firstElementChild as HTMLElement;
@@ -101,22 +82,8 @@ export function restoreElementsFromMarks(marks: HTMLElement[]) {
             const originalId = actor.split('#')[1];
             element.id = originalId;
          }
-
-         currentSceneElements.push(element);
       }
    });
-}
-
-export function createSceneController(
-   sceneMap: SvelteMap<number, HTMLElement[]>,
-   restoreCallback: (sceneNumber: number) => void,
-   stageState: { updates: number }
-) {
-   return function nextScene(currentScene: number, value: number = 1) {
-      restoreCallback(currentScene);
-      stageState.updates++;
-      return Math.max(0, Math.min(sceneMap.size - 1, currentScene + value));
-   };
 }
 
 function setupTransitionEvents(mark: HTMLElement, element: HTMLElement) {
@@ -164,11 +131,23 @@ function clearVirtualStage(stage: HTMLElement) {
 }
 
 // takes computed styles from clone and adds them to the mark, then clears styles from the element
+// reapplies specific styles to element from the original element's dataset
+// applies pointerEvents to mark
 function transferComputedStyles(clone: HTMLElement, mark: HTMLElement, element: HTMLElement) {
    const computedStyle = getComputedStyle(clone)
    for (const [property, value] of Object.entries(computedStyle)) {
       if (property !== "display") mark.style.setProperty(property, value);
       element.style.setProperty(property, "");
    }
+   mark.style.transition = 'all 0.5s ease';
+   element.style.display = "contents"
+   for (const key in element.dataset) {
+      // @ts-expect-error 7015
+      if (key in element.style) element.style[key] = element.dataset[key]
+   }
+   if (element.dataset.pointerEvents) mark.style.pointerEvents = element.dataset.pointerEvents
+}
 
+function getActorString(element: HTMLElement): string {
+   return element.tagName + (element.id ? `#${element.id}` : '');
 }
