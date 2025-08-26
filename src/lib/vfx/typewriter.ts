@@ -1,7 +1,7 @@
 import type { Attachment } from 'svelte/attachments';
 import { stageState } from '$lib/components/Stage.svelte'
 
-function typewriter(
+export function typewriter(
    text: string,
    interval: number = 75,
    multipliers: Record<string, number> = { ' ': 2 }
@@ -50,5 +50,3 @@ function typewriter(
       };
    };
 }
-
-export { typewriter };

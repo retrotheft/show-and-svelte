@@ -11,7 +11,7 @@
 
 <div id="view" {@attach typewriter("That's it.")}></div>
 <!-- <div id="svelte"></div> -->
-<div id="code">
+<div id="code" data-inset="0"  data-display="flex" data-align-items="center">
    <HighlightProvider>
       <CodeEditor bind:code language="javascript" template="js" />
    </HighlightProvider>

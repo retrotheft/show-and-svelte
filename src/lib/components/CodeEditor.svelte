@@ -1,6 +1,7 @@
 <script lang="ts">
-   import { onMount } from "svelte";
-   import { initializeCodeInput, type CodeInput } from "../code-input/index.js";
+   import CodeInput from "../code-input/CodeInput.svelte";
+   import { createAutoCloseBracketsPlugin } from "../code-input/auto-close-brackets.js";
+   import { createIndentPlugin } from "../code-input/indent.js";
    import { getHljsContext } from "$lib/contexts/hljs.js";
 
    let {
@@ -16,75 +17,73 @@
       placeholder?: string;
       theme?: string;
    } = $props();
-
-   let codeInput: CodeInput | null = null;
-   let isInitialized = $state(false);
-
+   
    const hljs = getHljsContext();
 
-   onMount(async () => {
-      try {
-         console.log(
-            "CodeEditor onMount - template:",
-            template,
-            "slide location:",
-            window.location.pathname,
-         );
-         codeInput = await initializeCodeInput(theme);
-         console.log("CodeInput initialized successfully");
-         setupHighlighting(template);
-         console.log("Template setup complete");
-         isInitialized = true;
-      } catch (error) {
-         console.error("Failed to initialize code-input:", error);
-         if (error instanceof Error)
-            console.error("Error details:", error.message);
-      }
+   // Create plugins using TypeScript functions
+   const plugins = $derived(() => {
+      const pluginList = [];
+      
+      // Auto-close brackets plugin
+      pluginList.push(createAutoCloseBracketsPlugin({
+         '(': ')', 
+         '[': ']', 
+         '{': '}', 
+         '"': '"',
+         "'": "'"
+      }));
+      
+      // Indent plugin
+      pluginList.push(createIndentPlugin(
+         true,  // useSpaces
+         2,     // indentSize
+         { '(': ')', '[': ']', '{': '}' }  // bracketPairs
+      ));
+      
+      return pluginList;
    });
 
-   function setupHighlighting(templateName: string) {
-      if (!codeInput || !hljs) return;
-
-      codeInput.registerTemplate(
-         templateName,
-         codeInput.templates.hljs(hljs, [
-            new codeInput.plugins.Indent(true, 2),
-            new codeInput.plugins.AutoCloseBrackets(),
-         ]),
-      );
+   // Highlighter function using hljs
+   function highlighter(code: string, language?: string): string {
+      if (!hljs) return code;
+      
+      try {
+         if (language && hljs.getLanguage(language)) {
+            return hljs.highlight(code, { language }).value;
+         } else {
+            return hljs.highlightAuto(code).value;
+         }
+      } catch (error) {
+         console.warn('Highlighting failed:', error);
+         return code;
+      }
    }
 
-   function oninput(
-      event: KeyboardEvent & { currentTarget: HTMLInputElement },
-   ) {
+   function handleInput(event: Event) {
       event.stopPropagation();
-      code = event.currentTarget.value;
    }
 
-   function onkeydown(event: InputEvent & { currentTarget: HTMLInputElement }) {
+   function handleKeydown(event: KeyboardEvent) {
       event.stopPropagation();
    }
 </script>
 
-{#if isInitialized && hljs}
-   <code-input
-      id="code"
+{#if hljs}
+   <CodeInput
+      bind:value={code}
       {language}
-      {template}
       {placeholder}
-      {oninput}
-      {onkeydown}
-      role="textbox"
-      tabindex="0">{code}</code-input
-   >
-{:else if !hljs}
-   <div class="loading-placeholder">CodeEditor requires hljs object.</div>
+      {highlighter}
+      plugins={plugins()}
+      oninput={handleInput}
+      onkeydown={handleKeydown}
+   />
 {:else}
-   <div class="loading-placeholder">Loading code editor...</div>
+   <div class="loading-placeholder">CodeEditor requires hljs object.</div>
 {/if}
 
 <style>
-   :global(code-input#code) {
+   :global(.code-input) {
       width: 100% !important;
       height: 100% !important;
       margin: 0 !important;
