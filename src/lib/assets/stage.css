@@ -4,8 +4,6 @@ main {
    height: var(--height);
    border: 1px solid grey;
    display: grid;
-   background-color: black;
-
 }
 
 [data-actor] {
@@ -23,4 +21,8 @@ main {
    position: absolute;
    inset: 0;
    z-index: -1;
+}
+
+:empty:not(hr):not(br):not(img):not(input):not(area):not(base):not(col):not(embed):not(link):not(meta):not(source):not(track):not(wbr)::before {
+  content: '\200B';
 }

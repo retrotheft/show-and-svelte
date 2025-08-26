@@ -66,6 +66,7 @@ export function transferStylesToMarks(
          setupTransitionEvents(mark, element)
          element.id = "";
          mark.replaceChildren(element);
+         mark.style.border = "1px dashed hotpink"
          mark.classList.add('ready');
       }
    });

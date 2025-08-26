@@ -1,24 +1,16 @@
 body {
    background-color: black;
-   display: grid;
-   place-items: center;
+   /*display: grid;
    height: 100vh;
    font-family: "Quicksand";
-   font-size: 5rem;
    font-weight: 700;
    margin: 0;
    padding: 0;
    overflow: hidden;
+   place-items: center;*/
+   font-size: 5rem;
 }
 
 #app {
    position: relative;
-}
-
-/*:empty::before {
-   content: '\200B';
-}*/
-
-:empty:not(hr):not(br):not(img):not(input):not(area):not(base):not(col):not(embed):not(link):not(meta):not(source):not(track):not(wbr)::before {
-  content: '\200B';
 }
