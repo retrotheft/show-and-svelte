@@ -1,4 +1,4 @@
-main {
+div#stage {
    position: relative;
    width: var(--width);
    height: var(--height);
@@ -22,6 +22,6 @@ main {
    opacity: 1;
 }
 
-:empty:not(hr):not(br):not(img):not(input):not(area):not(base):not(col):not(embed):not(link):not(meta):not(source):not(track):not(wbr)::before {
+div#stage :empty:not(hr):not(br):not(img):not(input):not(area):not(base):not(col):not(embed):not(link):not(meta):not(source):not(track):not(wbr)::before {
   content: '\200B';
 }

@@ -51,6 +51,6 @@
 
 <svelte:window {onkeydown} />
 
-<main bind:this={stageElement} {@attach setupVirtualStage(setVirtualStage)} style={`--width: ${width}px; --height: ${height}px;`}>
+<div id="stage" bind:this={stageElement} {@attach setupVirtualStage(setVirtualStage)} style={`--width: ${width}px; --height: ${height}px;`}>
    <!-- {@render children?.()} -->
-</main>
+</div>

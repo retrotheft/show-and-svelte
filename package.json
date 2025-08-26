@@ -1,6 +1,11 @@
 {
 	"name": "show-and-svelte",
 	"version": "0.0.2",
+	"license": "MIT",
+	"repository": {
+	   "type": "git",
+		"url": "https://github.com/retrotheft/show-and-svelte"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
@@ -52,6 +57,7 @@
 		]
 	},
 	"dependencies": {
+		"attach-this": "^0.0.3",
 		"markdown-it": "^14.1.0"
 	}
 }

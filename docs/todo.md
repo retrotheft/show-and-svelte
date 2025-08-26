@@ -2,18 +2,20 @@
 
 ## Next
 
-- [ ] update package.json with more metadata including repository url
-- [ ] finalise build settings for single-file js presentations
-- [ ] build Presentation component that receives the js file
+- [ ] Build website
+- [ ] Write docs
 
-## Ideal to solve before release
+## Soon
 
-- [x] simplify code-input
-- [x] pass hljs into CodeEditor and Markdown
-- [ ] A basic REPL? (ok this is a bit ambitious)
+- [ ] Player control overlay
 
 ## Done
 
+- [x] finalise build settings for single-file js presentations
+- [x] build Presentation component that receives the js file
+- [x] update package.json with more metadata including repository url
+- [x] simplify code-input
+- [x] pass hljs into CodeEditor and Markdown
 - [x] Remove dependencies
    - [x] hljs (pass object into CodeEditor and Markdown)
 - [x] Add props for Stage component
