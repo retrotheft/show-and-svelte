@@ -142,9 +142,6 @@ function transferComputedStyles(clone: HTMLElement, mark: HTMLElement, element: 
       element.style.setProperty(property, "");
    }
    mark.style.transition = 'all 0.5s ease';
-   // element.style.display = "contents"
-   mark.style.border = "1px dashed hotpink"
-   element.style.background = "hsla(220, 50%, 50%, 50%)"
    for (const key in element.dataset) {
       // @ts-expect-error 7015
       if (key in element.style) element.style[key] = element.dataset[key]
