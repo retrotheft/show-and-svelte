@@ -70,14 +70,14 @@
 			loaded = true;
 			const cleanup = syncScroll();
 			updateHighlighting();
-			
+
 			return cleanup;
 		}
 	});
 
 	function syncScroll() {
 		if (!textareaElement || !preElement) return;
-		
+
 		const syncScrollHandler = () => {
 			preElement.scrollTop = textareaElement.scrollTop;
 			preElement.scrollLeft = textareaElement.scrollLeft;
@@ -85,7 +85,7 @@
 
 		textareaElement.addEventListener('scroll', syncScrollHandler);
 		textareaElement.addEventListener('input', syncScrollHandler);
-		
+
 		return () => {
 			textareaElement.removeEventListener('scroll', syncScrollHandler);
 			textareaElement.removeEventListener('input', syncScrollHandler);
@@ -94,10 +94,10 @@
 
 	function updateHighlighting() {
 		if (!codeElement || !highlighter) return;
-		
+
 		const highlighted = highlighter(value || '', language);
 		codeElement.innerHTML = highlighted;
-		
+
 		// Run plugin afterHighlight callbacks
 		plugins.forEach(plugin => {
 			plugin.afterHighlight?.(preElement, textareaElement);
@@ -135,7 +135,7 @@
 	});
 </script>
 
-<div 
+<div
 	class="code-input"
 	class:code-input_loaded={loaded}
 	class:code-input_registered={registered}
@@ -147,7 +147,6 @@
 		{placeholder}
 		{readonly}
 		{disabled}
-		{autofocus}
 		{maxlength}
 		{minlength}
 		{rows}
@@ -163,7 +162,7 @@
 		onkeydown={handleKeydown}
 		onselectionchange={handleSelectionChange}
 	></textarea>
-	
+
 	<pre bind:this={preElement}>
 		<code bind:this={codeElement}></code>
 	</pre>
