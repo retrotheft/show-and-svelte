@@ -11,7 +11,7 @@
    import { SvelteMap } from "svelte/reactivity";
    import '$lib/assets/stage.css'
 
-   let { children, width = "1940", height = "1100" } = $props();
+   let { children, width = "1940", height = "1100", size = 5 } = $props();
 
    let currentScene = $state(0);
    let stageElement = $state<HTMLElement>()
@@ -52,6 +52,8 @@
 
 <svelte:window {onkeydown} />
 
-<div id="stage" bind:this={stageElement} {@attach setupVirtualStage(setVirtualStage)} style={`--width: ${width}px; --height: ${height}px;`}>
+<div id="stage-container" style={`--width: ${width}px; --height: ${height}px;`}>
+   <div id="stage" bind:this={stageElement} {@attach setupVirtualStage(setVirtualStage)}>
    <!-- {@render children?.()} -->
+   </div>
 </div>

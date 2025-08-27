@@ -1,9 +1,0 @@
-<div id="svelte">The rest is magic.</div>
-
-<style>
-   div#svelte {
-      transform: translate(10vh, 30vh);
-      color: cornflowerblue;
-      width: 30ch;
-   }
-</style>

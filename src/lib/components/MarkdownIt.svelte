@@ -29,5 +29,6 @@
    div.markdown-it {
       color: white;
       line-height: 1.3em;
+      text-align: left;
    }
 </style>

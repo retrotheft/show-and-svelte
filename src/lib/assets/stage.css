@@ -1,9 +1,17 @@
-div#stage {
-   position: relative;
+div#stage-container {
+   container-type: size;
    width: var(--width);
    height: var(--height);
    display: grid;
+   border: 1px solid cornflowerblue;
+}
+
+div#stage {
+   position: relative;
+   display: grid;
    place-items: center;
+   font-size: 1cqmin;
+   border: 1px solid hotpink;
 }
 
 [data-actor] {
@@ -12,6 +20,7 @@ div#stage {
    display: flex;
    align-items: stretch;
    opacity: 0;
+   text-align: center;
 
    & > * {
       flex-grow: 1;

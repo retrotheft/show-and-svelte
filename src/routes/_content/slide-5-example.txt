@@ -1,5 +1,0 @@
-const message = "Hello there"
-
-function greet(message) {
-   console.log(message
-}
