@@ -2,8 +2,8 @@
 
 ## Next
 
-- [ ] Build website
-- [ ] Write docs
+- [ ] Create Tutorial Presentation
+- [ ] Add docs to README
 
 ## Soon
 

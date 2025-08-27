@@ -44,6 +44,7 @@
    }
 
    function onkeydown(event: KeyboardEvent) {
+      console.log(event.code)
       if (event.code === "ArrowLeft" || event.code === "KeyA") return nextScene(-1);
       if (event.code === "ArrowRight" || event.code === "KeyD") return nextScene(1);
    }
