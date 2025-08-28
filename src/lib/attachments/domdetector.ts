@@ -1,7 +1,7 @@
 import type { Attachment } from 'svelte/attachments';
 import { stageState } from '$lib/components/Stage.svelte';
 
-export function domPresenceDetector(): Attachment {
+export function domPresenceDetector(callback: (isActive: boolean) => void): Attachment {
    return (element: Element) => {
       let isActive = false;
       let checkInterval: number | null = null;
@@ -38,6 +38,7 @@ export function domPresenceDetector(): Attachment {
             console.log('  - isConnected:', element.isConnected);
             console.log('  - parentNode:', element.parentNode?.nodeName);
             console.log('  - in real DOM:', newActive);
+            callback(isActive)
          }
       }
 
@@ -50,11 +51,11 @@ export function domPresenceDetector(): Attachment {
       // Set up periodic checking to catch DOM changes
       checkInterval = setInterval(updateActiveState, 100);
 
+      updateActiveState();
 
-         stageState.updates; // Subscribe to updates
-         updateActiveState();
 
       return () => {
+         callback(false)
          if (checkInterval !== null) {
             clearInterval(checkInterval);
          }

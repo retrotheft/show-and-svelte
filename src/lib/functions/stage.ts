@@ -59,10 +59,15 @@ function processNodes(children: Snippet): ProcessedNodes {
 
    if (currentGroup.length > 0) commentGroups.push(currentGroup);
 
+   // Filter out groups that only contain empty text nodes
+   const filteredCommentGroups = commentGroups.filter(group =>
+      group.some(node => node.nodeType === Node.ELEMENT_NODE)
+   );
+
    // SECOND SPLIT: Within each group, extract individual elements
    const allElements: ProcessedElement[] = [];
 
-   commentGroups.forEach((group, groupIndex) => {
+   filteredCommentGroups.forEach((group, groupIndex) => {
       // Filter to only element nodes within this group
       const elements = group.filter(node => node.nodeType === Node.ELEMENT_NODE) as Element[];
 
@@ -76,11 +81,11 @@ function processNodes(children: Snippet): ProcessedNodes {
       });
    });
 
-   return { commentGroups, allElements };
+   return { commentGroups: filteredCommentGroups, allElements };
 }
 
-export function extractMarkIds(children: Snippet): Set<string> {
-   if (!children) return new Set();
+export function extractMarkIds(children: Snippet): [Set<string>, number] {
+   if (!children) return [new Set(), 0];
 
    // Process and cache nodes for later use
    cachedProcessedNodes = processNodes(children);
@@ -92,7 +97,8 @@ export function extractMarkIds(children: Snippet): Set<string> {
       }
    });
 
-   return markIds;
+   const slideCount = cachedProcessedNodes.commentGroups.length;
+   return [markIds, slideCount];
 }
 
 export function createSnippetMap(children: Snippet): Map<string, Snippet> {

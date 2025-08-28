@@ -1,14 +1,16 @@
-###### 1-BabysFirstSlide.svelte
+###### 2-Twins.svelte
 
 ```html
 <div id="subtitle">
-   Baby's First Slide
+   Copy and edit
 </div>
 ```
+
 ---
+
 ```css
 #subtitle {
    place-self: center;
-   color: violet;
+   color: cornflowerblue;
 }
 ```

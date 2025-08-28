@@ -1,9 +1,9 @@
 <script lang="ts">
    import { MarkdownIt } from '$lib/index.js'
-   import content from './content/babys-first-slide.md?raw'
+   import content from './content/twins.md?raw'
 </script>
 
-<div id="subtitle">Baby's First Slide</div>
+<div id="subtitle">Copy and edit</div>
 <div id="markdown">
    <MarkdownIt {content} />
 </div>
@@ -12,16 +12,15 @@
 <style>
    #subtitle {
       place-self: center;
-      color: violet;
-      width: 18ch;
-      transform: translate(-23cqw, -0.5lh);
-      font-size: 5em;
+      color: cornflowerblue;
+      transform: translate(-23cqw, -0.5lh) scale(8);
       text-align: center;
    }
 
    #markdown {
       place-self: center end;
-      width: 45cqw;
-      font-size: 2em;
+      width: 40cqw;
+      font-size: 3em;
+      line-height: 1.5em;
    }
 </style>

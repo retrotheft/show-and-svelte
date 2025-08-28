@@ -36,8 +36,8 @@ export function slideLock(
 
       function handleKeydown(event: KeyboardEvent) {
          if (!unlock) event.stopPropagation();
-         if (event.code === "KeyD") return next();
-         if (event.code === "KeyA") return prev();
+         if (event.code === "ArrowLeft" || event.code === "KeyA") return prev();
+         if (event.code === "ArrowRight" || event.code === "KeyD") return next();
       }
 
       function updateActiveState() {

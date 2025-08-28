@@ -1,5 +1,6 @@
 <script lang="ts">
    import { slideLock } from "$lib/index.js";
+   import { MarkdownIt } from '$lib/index.js'
 
    const custom = $state({
       opacity: 0,
@@ -31,24 +32,36 @@
 
 <div id="title" {@attach slideLock(complete, prev, next)}>Show & Svelte</div>
 <div id="subtitle">Tutorial (v0.0.3)</div>
+<div id="markdown">
+   <MarkdownIt content="" />
+</div>
 
 <style>
    div#title {
       color: white;
       place-self: center;
-      white-space: nowrap;
-      font-size: 5em;
-      width: 13ch;
+      transform: scale(7);
+      /*width: 13ch;*/
       text-align: center;
+      -webkit-font-smoothing: antialiased;
+      /*-webkit-transform: translateZ(0);*/
+      will-change: transform;
    }
 
    div#subtitle {
       place-self: center;
-      transform: translateY(200%);
+      transform: translateY(10cqh) scale(4);
       color: white;
       opacity: var(--subtitle-opacity);
-      width: 18ch;
-      font-size: 5em;
+      /*width: 18ch;*/
+      /*font-size: 5em;*/
       text-align: center;
+   }
+
+   #markdown {
+      place-self: center end;
+      width: 45cqw;
+      font-size: 2em;
+      opacity: 0;
    }
 </style>

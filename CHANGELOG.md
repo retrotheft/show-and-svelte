@@ -10,8 +10,9 @@
 - Added MIT License
 
 - implemented container units for stage, tied to `cqmin`
-- added tooltips - use {@attach} or []{#} in markdown
-- added slideLock attachment for internal slide state management
+- added tooltips - use `{@attach}` or `[]{#}` in markdown
+- added `slideLock` attachment for internal slide state management
+- added `transitionTimeout` to `Stage.svelte` to prevent FOUC
 
 ## [0.0.2] - 2025-08-26
 
