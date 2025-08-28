@@ -12,6 +12,16 @@ div#stage {
    place-items: center;
    font-size: 1cqmin;
    border: 1px solid hotpink;
+   user-select: none;
+}
+
+[data-mark] {
+   transition: all 0.5s linear;
+   position: absolute;
+}
+
+[data-element] {
+   display: contents;
 }
 
 [data-actor] {
@@ -22,7 +32,7 @@ div#stage {
    opacity: 0;
    text-align: center;
 
-   & > * {
+   &>* {
       flex-grow: 1;
    }
 }
@@ -32,5 +42,50 @@ div#stage {
 }
 
 div#stage :empty:not(hr):not(br):not(img):not(input):not(area):not(base):not(col):not(embed):not(link):not(meta):not(source):not(track):not(wbr)::before {
-  content: '\200B';
+   content: '\200B';
+}
+
+.tooltip {
+   position: fixed;
+   background: gold;
+   color: black;
+   padding: 0.2rem 0.6rem;
+   border-radius: 0.2rem;
+   font-size: 3em;
+   /*z-index: 1000;*/
+   display: none;
+   white-space: nowrap;
+   pointer-events: none;
+}
+
+.tooltip-trigger {
+  position: relative;
+  cursor: help;
+  text-decoration: underline dotted;
+}
+
+.tooltip-trigger::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 1000;
+  margin-bottom: 5px;
+
+  background: gold;
+  color: black;
+  padding: 0.2em 0.6em;
+  border-radius: 0.2em;
+  font-size: 2em;
+  /*z-index: 1000;*/
+  white-space: nowrap;
+}
+
+.tooltip-trigger:hover::after {
+  opacity: 1;
 }

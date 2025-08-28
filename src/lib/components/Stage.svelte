@@ -5,46 +5,27 @@
 </script>
 
 <script lang="ts">
-   import { extractSceneMapFromChildren } from "$lib/functions/extract.js";
-   import { setupSceneActorSet, setupVirtualStage, setupMarks, transferStylesToMarks, restoreElementIds } from "$lib/functions/stage.js";
-   import { onMount } from "svelte";
-   import { SvelteMap } from "svelte/reactivity";
+   import { onMount, type Snippet } from "svelte";
    import '$lib/assets/stage.css'
+   import { extractMarkIds, createSnippetMap } from "$lib/functions/stage.js";
 
    let { children, width = "1940", height = "1100", size = 5 } = $props();
 
    let currentScene = $state(0);
-   let stageElement = $state<HTMLElement>()
 
-   const sceneMap: SvelteMap<number, HTMLElement[]> = extractSceneMapFromChildren(children);
+   const markIds = extractMarkIds(children)
 
-   const sceneActorSet = setupSceneActorSet(sceneMap);
-   let virtualStage = $state.raw<HTMLElement>();
-   const marks = $state.raw<HTMLElement[]>(setupMarks(sceneActorSet));
-   const setVirtualStage = (element: HTMLElement) => virtualStage = element;
+   let snippetMap = $state.raw<Map<string, Snippet>>()
 
    onMount(() => {
-      if (!stageElement || !virtualStage) return;
-      stageElement.appendChild(virtualStage);
-      marks.forEach(mark => stageElement?.appendChild(mark));
-      hitMarks();
+      snippetMap = createSnippetMap(children)
    });
 
-   function hitMarks() {
-      const scene = sceneMap.get(currentScene);
-      if (!scene || !virtualStage) return;
-      transferStylesToMarks(scene, virtualStage, marks);
-   }
-
    function nextScene(value: number = 1) {
-      restoreElementIds(marks);
-      stageState.updates.push(Date.now());
-      currentScene = Math.max(0, Math.min(sceneMap.size - 1, currentScene + value));
-      hitMarks();
+      currentScene = Math.max(0, currentScene + value);
    }
 
    function onkeydown(event: KeyboardEvent) {
-      console.log(event.code)
       if (event.code === "ArrowLeft" || event.code === "KeyA") return nextScene(-1);
       if (event.code === "ArrowRight" || event.code === "KeyD") return nextScene(1);
    }
@@ -53,7 +34,12 @@
 <svelte:window {onkeydown} />
 
 <div id="stage-container" style={`--width: ${width}px; --height: ${height}px;`}>
-   <div id="stage" bind:this={stageElement} {@attach setupVirtualStage(setVirtualStage)}>
-   <!-- {@render children?.()} -->
-   </div>
+   {#each markIds as markId}
+      <div id={markId} data-mark="true">
+         {#if snippetMap?.has(`${currentScene}#${markId}`)}
+            {@const snippet = snippetMap.get(`${currentScene}#${markId}`)}
+            {@render snippet?.()}
+         {/if}
+      </div>
+   {/each}
 </div>

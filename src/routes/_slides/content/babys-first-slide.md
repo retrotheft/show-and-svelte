@@ -1,3 +1,6 @@
+###### BabysFirstSlide.svelte
+
+[Hello there]{#General Kenobi}
 ```html
 <div id="subtitle">
    Baby's First Slide

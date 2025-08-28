@@ -19,8 +19,17 @@
 
 <svelte:window {onkeydown} />
 
+<svelte:head>
+   {@html `<style>
+      :root {
+         --subtitle-opacity: ${custom.opacity};
+      }
+   </style>`}
+</svelte:head>
+
 <div id="title">Show & Svelte</div>
-<div id="subtitle" data-text-align="center" {@attach reactiveProperties(custom)}>Tutorial (v0.0.3)</div>
+<div id="subtitle">Tutorial (v0.0.3)</div>
+<!-- <div id="subtitle">Tutorial (v0.0.3)</div> -->
 
 <style>
    div#title {
@@ -34,7 +43,7 @@
    div#subtitle {
       place-self: end center;
       color: white;
-      opacity: 0;
+      opacity: var(--subtitle-opacity);
       width: 18ch;
       font-size: 5em;
    }

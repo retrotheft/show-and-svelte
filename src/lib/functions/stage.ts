@@ -1,96 +1,173 @@
-import { SvelteMap } from "svelte/reactivity";
+// Import Svelte internals for effect management
+// @ts-expect-error - No type declarations for Svelte internals
+import { branch } from '../../../node_modules/svelte/src/internal/client/reactivity/effects.js'
+import { createRawSnippet, type Snippet } from 'svelte';
 
-const cloneMap = new Map<HTMLElement, HTMLElement>()
-const transitionSet = new Set<HTMLElement>()
-
-export function setupSceneMap(templates: HTMLTemplateElement[]): SvelteMap<number, HTMLElement[]> {
-   const map = new SvelteMap<number, HTMLElement[]>()
-   templates.forEach((template, index) => map.set(index, Array.from(template.content.children) as HTMLElement[]))
-   return map;
+function extract(children: Snippet) {
+   let result: any = null;
+   // @ts-expect-error 2554 - Using internal Svelte snippet API
+   children({ before: (array: any) => result = array });
+   return result;
 }
 
-export function setupSceneActorSet(sceneMap: SvelteMap<number, HTMLElement[]>): Set<string> {
-   const array = [];
-   for (const collection of sceneMap.values()) array.push(...collection)
-   const set = new Set<string>()
-   for (const element of array) set.add(`${element.tagName}#${element.id}`)
-   return set
+interface ProcessedElement {
+   element: Element;
+   groupIndex: number;
+   elementIndex: number;
+   globalIndex: number;
 }
 
-export function setupVirtualStage(callback: Function) {
-   return (stageElement: HTMLElement) => {
-      const virtualStage = document.createElement('section')
-      const style = getComputedStyle(stageElement)
-      for (const [property, value] of Object.entries(style)) {
-         virtualStage.style.setProperty(property, value)
-      }
-      virtualStage.style.position = 'absolute';
-      virtualStage.style.inset = '0';
-      virtualStage.style.left = '-9999px';
-      virtualStage.style.top = '-9999px';
-      virtualStage.style.zIndex = '-1';
+interface ProcessedNodes {
+   commentGroups: Node[][];
+   allElements: ProcessedElement[];
+}
 
-      virtualStage.id = "virtual-stage"
-      callback(virtualStage)
+// Store processed nodes between the two passes
+let cachedProcessedNodes: ProcessedNodes | null = null;
+
+function processNodes(children: Snippet): ProcessedNodes {
+   if (!children) return { commentGroups: [], allElements: [] };
+
+   const extracted = extract(children);
+
+   let nodes: Node[] = [];
+   if (extracted && extracted.childNodes) {
+      nodes = Array.from(extracted.childNodes);
+   } else if (Array.isArray(extracted)) {
+      nodes = extracted;
    }
-}
 
-export function setupMarks(sceneActorSet: Set<string>): HTMLElement[] {
-   const array: HTMLElement[] = []
-   sceneActorSet.forEach(actor => {
-      const [tag, id] = actor.split('#')
-      const mark = document.createElement(tag)
-      mark.dataset.actor = id ? actor : tag
-      array.push(mark)
-   })
-   return array
-}
+   if (nodes.length === 0) {
+      console.warn('Could not extract any nodes');
+      return { commentGroups: [], allElements: [] };
+   }
 
-export function transferStylesToMarks(
-   scene: HTMLElement[],
-   virtualStage: HTMLElement,
-   marks: HTMLElement[],
-) {
-   clearVirtualStage(virtualStage)
-   marks.forEach(mark => mark.innerHTML = "")
-   scene.forEach(element => {
-      const clone = getOrCreateClone(element)
-      virtualStage.appendChild(clone)
+   // FIRST SPLIT: Group nodes by comment boundaries
+   const commentGroups: Node[][] = [];
+   let currentGroup: Node[] = [];
 
-      const actor = getActorString(element)
-      const mark = marks.find(m => m.dataset.actor === actor);
-
-      if (mark) {
-         transferComputedStyles(clone, mark, element)
-         setupTransitionEvents(mark, element)
-         element.id = "";
-         mark.replaceChildren(element);
-
-         mark.classList.add('ready');
-      }
-   });
-}
-
-export function restoreElementIds(marks: HTMLElement[]) {
-   marks.forEach(mark => {
-      if (mark.firstElementChild) {
-         const element = mark.firstElementChild as HTMLElement;
-
-         // Restore original ID from data-actor
-         const actor = mark.dataset.actor;
-         if (actor && actor.includes('#')) {
-            const originalId = actor.split('#')[1];
-            element.id = originalId;
+   for (const node of nodes) {
+      if (node.nodeType === Node.COMMENT_NODE) {
+         if (currentGroup.length > 0) {
+            commentGroups.push([...currentGroup]);
+            currentGroup = [];
          }
+      } else {
+         currentGroup.push(node);
+      }
+   }
+
+   if (currentGroup.length > 0) commentGroups.push(currentGroup);
+
+   // SECOND SPLIT: Within each group, extract individual elements
+   const allElements: ProcessedElement[] = [];
+
+   commentGroups.forEach((group, groupIndex) => {
+      // Filter to only element nodes within this group
+      const elements = group.filter(node => node.nodeType === Node.ELEMENT_NODE) as Element[];
+
+      elements.forEach((element, elementIndex) => {
+         allElements.push({
+            element,
+            groupIndex,
+            elementIndex,
+            globalIndex: allElements.length
+         });
+      });
+   });
+
+   return { commentGroups, allElements };
+}
+
+export function extractMarkIds(children: Snippet): Set<string> {
+   if (!children) return new Set();
+
+   // Process and cache nodes for later use
+   cachedProcessedNodes = processNodes(children);
+
+   const markIds = new Set<string>();
+   cachedProcessedNodes.allElements.forEach(({ element }) => {
+      if (element.id) {
+         markIds.add(element.id);
       }
    });
+
+   return markIds;
+}
+
+export function createSnippetMap(children: Snippet): Map<string, Snippet> {
+   if (!children) return new Map();
+
+   // Use cached processed nodes or process fresh if not available
+   const { allElements } = cachedProcessedNodes || processNodes(children);
+
+   const snippetMap = new Map<string, Snippet<[]>>();
+
+   allElements.forEach(({ element, groupIndex, elementIndex, globalIndex }) => {
+      if (element.id) {
+         snippetMap.set(`${groupIndex}#${element.id}`, createRawSnippet(() => ({
+            render: () => `<div data-element="${globalIndex}" data-group="${groupIndex}" data-element-in-group="${elementIndex}"></div>`,
+            setup: (container) => {
+               // Find the mark element - it might be the immediate parent or we need to wait for it
+               let mark = container.parentNode;
+
+               // If parent is document fragment, we need to wait for proper mounting
+               if (mark?.nodeName === '#document-fragment') {
+                  // Use MutationObserver or setTimeout to wait for proper mounting
+                  const checkForMark = () => {
+                     mark = container.parentNode;
+                     if (mark && mark instanceof HTMLElement && mark.dataset.mark === 'true') {
+                        setupMarkAndElement(mark, element as HTMLElement);
+                     } else {
+                        requestAnimationFrame(checkForMark);
+                     }
+                  };
+                  checkForMark();
+               } else if (mark && mark instanceof HTMLElement && element instanceof HTMLElement) {
+                  setupMarkAndElement(mark, element);
+               }
+
+               return branch(() => {
+                  // Move the actual element to preserve reactivity
+                  try {
+                     container.appendChild(element);
+                  } catch (e) {
+                     console.error(`Error moving element ${globalIndex}:`, e);
+                  }
+               });
+            }
+         })));
+      }
+   });
+
+   // Clear cached nodes after snippet creation
+   cachedProcessedNodes = null;
+
+   return snippetMap;
+}
+
+
+
+function setupMarkAndElement(mark: HTMLElement, element: HTMLElement) {
+   setupTransitionEvents(mark, element);
+   mark.id = element.id;
+   if (element.className) element.dataset.className = element.className;
+   element.className = "";
+   mark.className = element.dataset.className ?? "";
 }
 
 function setupTransitionEvents(mark: HTMLElement, element: HTMLElement) {
+   mark.ontransitionrun = (event) => {
+      const syntheticEvent = new TransitionEvent('transitionrun', {
+         propertyName: 'mark', // Generic for multiple properties
+         elapsedTime: 0,      // Start of batched transition
+         pseudoElement: event.pseudoElement,
+         bubbles: false,
+         cancelable: true
+      });
+      element.dispatchEvent(syntheticEvent);
+   }
    mark.ontransitionstart = (event: TransitionEvent) => {
-      if (transitionSet.has(mark)) return
-      transitionSet.add(mark)
-
       // This fires once per frame, regardless of property count
       const syntheticEvent = new TransitionEvent('transitionstart', {
          propertyName: 'mark', // Generic for multiple properties
@@ -102,7 +179,6 @@ function setupTransitionEvents(mark: HTMLElement, element: HTMLElement) {
       element.dispatchEvent(syntheticEvent);
    }
    mark.ontransitionend = (event: TransitionEvent) => {
-      if (!transitionSet.has(mark)) return
       const syntheticEvent = new TransitionEvent('transitionend', {
          propertyName: 'mark',
          elapsedTime: event.elapsedTime,
@@ -112,41 +188,5 @@ function setupTransitionEvents(mark: HTMLElement, element: HTMLElement) {
       });
 
       element.dispatchEvent(syntheticEvent);
-      transitionSet.delete(mark)
    }
-}
-
-function getOrCreateClone(element: HTMLElement): HTMLElement {
-   let clone = cloneMap.get(element);
-   if (clone) return clone
-
-   clone = element.cloneNode(true) as HTMLElement;
-   clone.style.position = "absolute";
-   cloneMap.set(element, clone);
-   return clone;
-}
-
-function clearVirtualStage(stage: HTMLElement) {
-   while (stage.firstChild) stage.firstChild.remove();
-}
-
-// takes computed styles from clone and adds them to the mark, then clears styles from the element
-// reapplies specific styles to element from the original element's dataset
-// applies pointerEvents to mark
-function transferComputedStyles(clone: HTMLElement, mark: HTMLElement, element: HTMLElement) {
-   const computedStyle = getComputedStyle(clone)
-   for (const [property, value] of Object.entries(computedStyle)) {
-      if (property !== "display") mark.style.setProperty(property, value);
-      element.style.setProperty(property, "");
-   }
-   mark.style.transition = 'all 0.5s ease';
-   for (const key in element.dataset) {
-      // @ts-expect-error 7015
-      if (key in element.style) element.style[key] = element.dataset[key]
-   }
-   if (element.dataset.pointerEvents) mark.style.pointerEvents = element.dataset.pointerEvents
-}
-
-function getActorString(element: HTMLElement): string {
-   return element.tagName + (element.id ? `#${element.id}` : '');
 }

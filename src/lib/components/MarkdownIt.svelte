@@ -1,6 +1,7 @@
 <script lang="ts">
    import markdownit from "markdown-it";
    import { getHljsContext } from "$lib/contexts/hljs.js";
+   import tooltipPlugin from "$lib/plugins/tooltip.js";
 
    let { content }: { content: string } = $props();
 
@@ -17,6 +18,8 @@
          return "";
       },
    });
+
+   md.use(tooltipPlugin)
 
    const markdown = md.render(content);
 </script>

@@ -1,13 +1,14 @@
 <script lang="ts">
    import { MarkdownIt } from '$lib/index.js'
    import content from './content/babys-first-slide.md?raw'
-   // show markdown component with code
+   import { tooltip } from '$lib/attachments/tooltip.js';
 </script>
 
-<div id="subtitle">Baby's First Slide</div>
+<div id="subtitle" {@attach tooltip("Hello there")}>Baby's First Slide</div>
 <div id="markdown">
    <MarkdownIt {content} />
 </div>
+
 
 <style>
    #subtitle {

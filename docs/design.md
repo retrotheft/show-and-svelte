@@ -34,3 +34,15 @@ Instead of using stageState updates to trigger, is there a way of auto-triggerin
 Or rather, can I just modify typewriter to detect when the element is on the screen?
 
 Or maybe I can wrap attachments in some fashion.
+
+## v2 Method
+
+Currently, we:
+
+- style components in a scoped style block by their ID
+- remove the element ID when adding to mark in order to prevent CSS styles applying
+- tear out of snippet and manually append to DOM
+
+Is it possible to keep Svelte's reactivity with the following change?
+
+- use data-mask to link to mask, so
