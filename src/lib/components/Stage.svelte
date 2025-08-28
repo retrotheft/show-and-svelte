@@ -14,14 +14,11 @@
    let currentScene = $state(0);
 
    const markIds = extractMarkIds(children)
-
    let snippetMap = $state.raw<Map<string, Snippet>>()
-
-   onMount(() => {
-      snippetMap = createSnippetMap(children)
-   });
+   onMount(() => snippetMap = createSnippetMap(children));
 
    function nextScene(value: number = 1) {
+      stageState.updates.push(Date.now())
       currentScene = Math.max(0, currentScene + value);
    }
 

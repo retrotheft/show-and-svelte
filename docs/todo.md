@@ -2,6 +2,8 @@
 
 ## Next
 
+- [x] `slideLock` attachment
+- [ ] `BulletList.svelte` component
 - [ ] Create Tutorial Presentation
 - [ ] Add docs to README
 
@@ -40,7 +42,8 @@
 
 ## Bugs
 
-- [ ] Tooltips stay on screen if slide changes while active
+- [x] Slide prev and next run even when slide not active
+- [ ] Tooltips stay on screen if slide changes while active (attachment is balls)
 - [ ] HMR still problematic when non-css changes
 
 ---

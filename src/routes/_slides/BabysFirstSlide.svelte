@@ -1,10 +1,9 @@
 <script lang="ts">
    import { MarkdownIt } from '$lib/index.js'
    import content from './content/babys-first-slide.md?raw'
-   import { tooltip } from '$lib/attachments/tooltip.js';
 </script>
 
-<div id="subtitle" {@attach tooltip("Hello there")}>Baby's First Slide</div>
+<div id="subtitle">Baby's First Slide</div>
 <div id="markdown">
    <MarkdownIt {content} />
 </div>
@@ -24,6 +23,5 @@
       place-self: center end;
       width: 45cqw;
       font-size: 2em;
-      /*font-size: 2em;*/
    }
 </style>

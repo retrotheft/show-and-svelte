@@ -7,12 +7,11 @@
 
 - Added `PresentationViewer` and `ViewerOverlay`
 - Defined recommended build setup
-- Built very basic website
 - Added MIT License
 
 - implemented container units for stage, tied to `cqmin`
-- added reactive properties for internal slide state management
 - added tooltips - use {@attach} or []{#} in markdown
+- added slideLock attachment for internal slide state management
 
 ## [0.0.2] - 2025-08-26
 

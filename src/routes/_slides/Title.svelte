@@ -1,5 +1,5 @@
 <script lang="ts">
-   import { reactiveProperties } from "$lib/index.js";
+   import { slideLock } from "$lib/index.js";
 
    const custom = $state({
       opacity: 0,
@@ -8,16 +8,18 @@
 
    let complete = $state(false)
 
-   function onkeydown(event: KeyboardEvent) {
-      if (event.code !== "KeyD") return
-      if (!complete) event.stopPropagation()
+   function prev() {
+      custom.transform = ""
+      custom.opacity = 0
+      complete = false
+   }
+
+   function next() {
       custom.transform = "translateY(-33cqh)"
       custom.opacity = 1
       complete = true
    }
 </script>
-
-<svelte:window {onkeydown} />
 
 <svelte:head>
    {@html `<style>
@@ -27,9 +29,8 @@
    </style>`}
 </svelte:head>
 
-<div id="title">Show & Svelte</div>
+<div id="title" {@attach slideLock(complete, prev, next)}>Show & Svelte</div>
 <div id="subtitle">Tutorial (v0.0.3)</div>
-<!-- <div id="subtitle">Tutorial (v0.0.3)</div> -->
 
 <style>
    div#title {
