@@ -16,13 +16,14 @@
       color: violet;
       width: 18ch;
       transform: translate(-23cqw, -0.5lh);
-      font-size: 7em;
+      font-size: 5em;
+      text-align: center;
    }
 
    #markdown {
       place-self: center end;
       width: 45cqw;
-      font-size: 3em;
+      font-size: 2em;
       /*font-size: 2em;*/
    }
 </style>

@@ -4,6 +4,7 @@
    import { Stage } from "$lib/index.js";
    import Title from "./_slides/Title.svelte";
    import BabysFirstSlide from "./_slides/BabysFirstSlide.svelte";
+   import StageSlide from "./_slides/StageSlide.svelte"
 
    import { PresentationViewer } from "$lib/index.js";
    import HighlightProvider from "./_components/HighlightProvider.svelte";
@@ -24,6 +25,7 @@
          <HighlightProvider>
             <Title />
             <BabysFirstSlide />
+            <StageSlide />
          </HighlightProvider>
       </Stage>
    {/key}

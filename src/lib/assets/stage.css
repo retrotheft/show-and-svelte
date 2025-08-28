@@ -16,12 +16,13 @@ div#stage {
 }
 
 [data-mark] {
+   will-change: transform, opacity;
    transition: all 0.5s linear;
    position: absolute;
 }
 
 [data-element] {
-   display: contents;
+   /*display: contents;*/
 }
 
 [data-actor] {

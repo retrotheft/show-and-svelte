@@ -40,6 +40,11 @@
 
 ## Bugs
 
+- [ ] Tooltips stay on screen if slide changes while active
+- [ ] HMR still problematic when non-css changes
+
+---
+
 Is a bit annoying when designing each slide - having an easy way to view them with HMR would be ideal. It would be fine to just show them instead of the Stage but
 
 Think I'd prefer elements stay where they are if no element present in next slide. This would allow persistence without

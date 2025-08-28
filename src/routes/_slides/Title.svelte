@@ -36,15 +36,18 @@
       color: white;
       place-self: center;
       white-space: nowrap;
-      font-size: 7em;
+      font-size: 5em;
       width: 13ch;
+      text-align: center;
    }
 
    div#subtitle {
-      place-self: end center;
+      place-self: center;
+      transform: translateY(200%);
       color: white;
       opacity: var(--subtitle-opacity);
       width: 18ch;
       font-size: 5em;
+      text-align: center;
    }
 </style>
