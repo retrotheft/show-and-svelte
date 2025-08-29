@@ -24,7 +24,7 @@
       place-self: center end;
       width: 40cqw;
       font-size: 2.5em;
-      line-height: 1.5em;
+      color: white;
    }
 
    div#title {

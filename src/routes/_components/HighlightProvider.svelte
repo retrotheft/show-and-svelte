@@ -8,15 +8,9 @@
 
   let { children }: { children: Snippet } = $props();
 
-  const languages = {
-    css: Css,
-    html: Xml,
-    javascript: Javascript
-  };
-
-  Object.entries(languages).forEach(([name, language]) => {
-    hljs.registerLanguage(name, language);
-  });
+  hljs.registerLanguage("css", Css)
+  hljs.registerLanguage("html", Xml)
+  hljs.registerLanguage("javascript", Javascript)
 
   setHljsContext(hljs)
 </script>

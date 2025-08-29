@@ -1,6 +1,3 @@
-// Import Svelte internals for effect management
-// @ts-expect-error - No type declarations for Svelte internals
-import { branch } from '../../../node_modules/svelte/src/internal/client/reactivity/effects.js'
 import { createRawSnippet, type Snippet } from 'svelte';
 
 function extract(children: Snippet) {
@@ -133,14 +130,11 @@ export function createSnippetMap(children: Snippet): Map<string, Snippet> {
                   setupMarkAndElement(mark, element);
                }
 
-               return branch(() => {
-                  // Move the actual element to preserve reactivity
-                  try {
-                     container.appendChild(element);
-                  } catch (e) {
-                     console.error(`Error moving element ${globalIndex}:`, e);
-                  }
-               });
+               try {
+                  container.appendChild(element);
+               } catch (e) {
+                  console.error(`Error moving element ${globalIndex}:`, e);
+               }
             }
          })));
       }

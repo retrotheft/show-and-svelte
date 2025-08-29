@@ -21,6 +21,6 @@
       place-self: center end;
       width: 40cqw;
       font-size: 3em;
-      line-height: 1.5em;
+      color: white;
    }
 </style>

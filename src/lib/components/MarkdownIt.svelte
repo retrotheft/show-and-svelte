@@ -2,26 +2,33 @@
    import markdownit from "markdown-it";
    import { getHljsContext } from "$lib/contexts/hljs.js";
    import tooltipPlugin from "$lib/plugins/tooltip.js";
+   import { onMount } from 'svelte'
 
    let { content }: { content: string } = $props();
 
    const hljs = getHljsContext();
+   let md = $state.raw();
+   let markdown = $state.raw();
 
-   const md = markdownit({
-      highlight: function (str, lang) {
-         if (lang && hljs.getLanguage(lang)) {
-            try {
-               return hljs.highlight(str, { language: lang }).value;
-            } catch (__) {}
-         }
+   function initMd() {
+      const md = !hljs
+         ? markdownit()
+         : markdownit({
+              highlight: function (str, lang) {
+                 if (lang && hljs.getLanguage(lang)) {
+                    try {
+                       return hljs.highlight(str, { language: lang }).value;
+                    } catch (__) {}
+                 }
 
-         return "";
-      },
-   });
+                 return "";
+              },
+           });
+      md.use(tooltipPlugin);
+      markdown = md.render(content);
+   }
 
-   md.use(tooltipPlugin)
-
-   const markdown = md.render(content);
+   onMount(() => initMd())
 </script>
 
 <div class="markdown-it">
@@ -30,8 +37,7 @@
 
 <style>
    div.markdown-it {
-      color: white;
-      /*line-height: 1.3em;*/
+      line-height: 1.5em;
       text-align: left;
    }
 </style>
