@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.0.3] - UNRELEASED
+## [0.0.3] - 2025-08-29
 
 - rewrote rendering logic, now subdividing snippets instead of direct DOM manipulation
 - rewrote styling logic, now just moving ID and scoped class instead of styles directly
