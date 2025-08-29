@@ -6,12 +6,12 @@
 </script>
 
 <div id="subtitle">Baby's First Slide</div>
-<!-- <div id="markdown" class="markdown">
+<div id="markdown" class="markdown">
    <MarkdownIt {content} />
-</div> -->
-<div id="code">
-   <CodeEditor bind:code />
 </div>
+<!-- <div id="code">
+   <CodeEditor bind:code />
+</div> -->
 
 <style>
    #subtitle {
@@ -28,7 +28,7 @@
       width: 40cqw;
    }
 
-   #code {
+   /*#code {
       border: 1px solid grey;
       background-color: #111;
       place-self: start end;
@@ -36,5 +36,5 @@
       font-size: 3em;
       color: white;
       width: 40cqw;
-   }
+   }*/
 </style>

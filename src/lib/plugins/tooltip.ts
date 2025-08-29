@@ -1,4 +1,6 @@
-export default function tooltipPlugin(md) {
+import type MarkdownIt from "markdown-it/index.js";
+
+export default function tooltipPlugin(md: MarkdownIt) {
   md.inline.ruler.after('emphasis', 'tooltip', function(state, silent) {
     const start = state.pos;
     const max = state.posMax;

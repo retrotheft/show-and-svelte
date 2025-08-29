@@ -1,8 +1,7 @@
 <script lang="ts">
    import "../app.css";
-   import { PresentationViewer } from "$lib/index.js";
+   // import { PresentationViewer } from "$lib/index.js";
    import HighlightProvider from "./_components/HighlightProvider.svelte";
-   import Record from '$lib/components/Record.svelte'
 
    import { Stage } from "$lib/index.js";
    import Title from "./_slides/1-Title.svelte";
@@ -38,4 +37,3 @@
 </div>
 
 <!-- <PresentationViewer /> -->
-<!-- <Record /> -->
