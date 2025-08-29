@@ -111,10 +111,8 @@ export function createSnippetMap(children: Snippet): Map<string, Snippet> {
          snippetMap.set(`${groupIndex}#${element.id}`, createRawSnippet(() => ({
             render: () => `<div data-element="${globalIndex}" data-group="${groupIndex}" data-element-in-group="${elementIndex}"></div>`,
             setup: (container) => {
-               console.log("SETTING UP SNIPPET", container)
                // Find the mark element - it might be the immediate parent or we need to wait for it
                let mark = container.parentNode;
-               if (mark) mark.id = ""
                // If parent is document fragment, we need to wait for proper mounting
                if (mark?.nodeName === '#document-fragment') {
                   // Use MutationObserver or setTimeout to wait for proper mounting

@@ -7,46 +7,42 @@
    let {
       code = $bindable(),
       language,
-      template,
       placeholder = "",
-      theme,
    }: {
       code: string;
-      language: string;
-      template: string;
+      language?: string;
       placeholder?: string;
-      theme?: string;
    } = $props();
-   
+
    const hljs = getHljsContext();
 
    // Create plugins using TypeScript functions
    const plugins = $derived(() => {
       const pluginList = [];
-      
+
       // Auto-close brackets plugin
       pluginList.push(createAutoCloseBracketsPlugin({
-         '(': ')', 
-         '[': ']', 
-         '{': '}', 
+         '(': ')',
+         '[': ']',
+         '{': '}',
          '"': '"',
          "'": "'"
       }));
-      
+
       // Indent plugin
       pluginList.push(createIndentPlugin(
          true,  // useSpaces
          2,     // indentSize
          { '(': ')', '[': ']', '{': '}' }  // bracketPairs
       ));
-      
+
       return pluginList;
    });
 
    // Highlighter function using hljs
    function highlighter(code: string, language?: string): string {
       if (!hljs) return code;
-      
+
       try {
          if (language && hljs.getLanguage(language)) {
             return hljs.highlight(code, { language }).value;

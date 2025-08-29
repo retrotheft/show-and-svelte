@@ -3,8 +3,8 @@
 Create fully interactive presentations with Svelte.
 
 - all transitions are handled automagically. Just place elements on slides.
-- comes with `CodeEditor` and `MarkdownIt` components for convenience
-- syntax highlighting for code and markdown, just BYO `highlight.js` and configure it
+- comes with **CodeEditor** and **MarkdownIt** components for convenience
+- syntax highlighting for code and markdown, just BYO `highlight.js` and configure it (more below)
 
 [See it in action](https://www.youtube.com/watch?v=Qgq7tLiWoco) (this is the tutorial video also linked below.)
 
@@ -26,7 +26,7 @@ Make sure you're using at least Svelte 5.29, since Show & Svelte uses attachment
 
 If you just want to record your screen, you're good to go.
 
-If you want to build presentation to js/css, so you can embed it, refer to `BUILD_SETUP.md`.
+If you want to build presentation to js/css, so you can embed it, refer to **BUILD_SETUP.md**.
 
 ## Usage
 
@@ -59,7 +59,7 @@ You can use the included MarkdownIt component like this:
 </style>
 ```
 
-If you want syntax highlighting, you will need to install `highlight.js` and configure a `HighlightProvider` to set the `hljs` context. It sounds more difficult than it is.
+If you want syntax highlighting, you will need to install `highlight.js` and configure a **HighlightProvider** to set the `hljs` context. It sounds more difficult than it is.
 
 ### Syntax Highlighting
 
@@ -69,7 +69,7 @@ First, make sure you install `highlight.js`.
 npm install highlight.js
 ```
 
-Next, create a component named something like `HighlightProvider.svelte`, and add something like the following:
+Next, create a component named something like **HighlightProvider.svelte**, and add something like the following:
 
 ```svelte
 <script lang="ts">
@@ -104,11 +104,17 @@ Next, create a component named something like `HighlightProvider.svelte`, and ad
 
 You can find a list of [highlight.js themes here](https://highlightjs.org/examples). Those theme names should work in the url provided in the code example.
 
-Now that you know how to setup syntax highlighting, you're ready to use the `CodeEditor`.
+The **HighlightProvider** works with named code blocks in the **MarkdownIt** component, as well as the **CodeEditor**.
 
 ## Code Editor
 
-The `CodeEditor` component included in Show & Svelte is a modified version of [webcoder49's code-input](https://github.com/WebCoder49/code-input). I had constant headaches with it as a global, so I asked Claude to modify it to a Svelte component, and to update two of its plugins to typescript: `indent` and `auto-close-brackets`.
+The **CodeEditor** component included in Show & Svelte is a modified version of [webcoder49's code-input](https://github.com/WebCoder49/code-input). I had constant headaches with it as a global, so I asked Claude to modify it to a Svelte component, and to update two of its plugins to typescript: `indent` and `auto-close-brackets`.
+
+**CodeEditor** receives 3 props, only one of which is required:
+
+- `code` is your code. This uses Svelte's `$bindable` rune, so use `bind:code` with a `$state` string.
+- `language` corresponds to a `highlight.js` language. If you omit it, **CodeEditor** will use `hljs.highlightAuto`
+- `placeholder` will set placeholder text for when your code string is empty.
 
 ---
 

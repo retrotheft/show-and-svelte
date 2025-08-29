@@ -10,7 +10,7 @@
    <MarkdownIt {content} />
 </div> -->
 <div id="code">
-   <CodeEditor bind:code language="javascript" template="js" />
+   <CodeEditor bind:code />
 </div>
 
 <style>
