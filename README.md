@@ -108,13 +108,62 @@ The **HighlightProvider** works with named code blocks in the **MarkdownIt** com
 
 ## Code Editor
 
-The **CodeEditor** component included in Show & Svelte is a modified version of [webcoder49's code-input](https://github.com/WebCoder49/code-input). I had constant headaches with it as a global, so I asked Claude to modify it to a Svelte component, and to update two of its plugins to typescript: `indent` and `auto-close-brackets`.
+The **CodeEditor** component included in Show & Svelte is a modified version of [webcoder49's code-input](https://github.com/WebCoder49/code-input). I had constant headaches with it as a global, so I asked Claude to modify it to a Svelte component, and to update two of its plugins to typescript: `indent` and `auto-close-brackets`. These are iincluded. If you wanted to use any other plugins, they'd probably need to be similarly converted. Let me know if so.
 
 **CodeEditor** receives 3 props, only one of which is required:
 
 - `code` is your code. This uses Svelte's `$bindable` rune, so use `bind:code` with a `$state` string.
 - `language` corresponds to a `highlight.js` language. If you omit it, **CodeEditor** will use `hljs.highlightAuto`
 - `placeholder` will set placeholder text for when your code string is empty.
+
+```svelte
+<script lang="ts">
+   import { CodeEditor } from 'show-and-svelte'
+
+   let code = $state(`const message = "Hello"`)
+</script>
+
+
+<div id="code">
+   <CodeEditor bind:code />
+</div>
+
+<style>
+   #code {
+      border: 1px solid grey;
+      background-color: #111;
+      place-self: start end;
+      height: 100%;
+      font-size: 3em;
+      color: white;
+      width: 40cqw;
+   }
+</style>
+```
+
+---
+
+## How it works
+
+When the **Stage** component loads the slides in the children snippet, it immediately extracts all the nodes instead of rendering the snippet. Since Svelte very helpfully divides these nodes by component using comment nodes, it's easy to group them.
+
+Next, a set of 'mark' elements are created in the stage. These are the elements that actually perform the transitions, and they never leave the stage. One mark is created for each unique id across all slides.
+
+Finally, a snippet is created for each root element in each component using `createRawSnippet`. These snippets perform some setup when they are rendered, such as transferring the element's ID and scope class to the mark. When the snippet is destroyed, these attributes are removed. Snippets are loaded and unloaded using the current slide index and the element id.
+
+Using this system, Show & Svelte manages to keep your component's reactivity while also automating all transitions, which is great, but it does come with some quirks.
+
+---
+
+## Best Practices
+
+- Always use IDs on component root elements.
+- Root elements with the same ID will transition.
+- Control transitions with before and after elements in surrounding slides.
+- When styling, target root elements by **#id** in scoped components.
+- Nested elements can be targeted by their tags or classes.
+- Use Container units like **cqh** and **cqw**.
+- For font-sizes, use **em** instead of **rem**, because container.
 
 ---
 
@@ -127,3 +176,17 @@ First, check if the element is empty. Since slides update immediately on a slide
 ### I'm seeing a Flash of Unstyled Content!
 
 Yeah these are a pain. There are some measures in place that have prevented them for me, but if you encounter one, please let me know.
+
+### Performance
+
+Show & Svelte is performant enough on my M1 to get good results when recording my screen, though I have noticed some hiccups, particularly if recording in 4K.
+
+First, always give the presentation a complete run through and back before recording, after every page reload. This seems to keep things running a lot smoother than trying to record immediately after a reload.
+
+Next, ideally use **transform** for spatial movements. These prevent the browser from needing to recalculate a bunch of elements positions on the page. Similarly, use **opacity** for fades and for hiding things, rather than **visibility** or **display**.
+
+If you want to know more about this topic (Layout Thrashing), and what triggers **reflows** and **repaints**, [start here](https://gist.github.com/paulirish/5d52fb081b3570c81e3a).
+
+Also, there is most likely some more I can do inside Show & Svelte to improve things further; any suggestions or advice are welcome!
+
+In **Chrome** and **Firefox**, you can use transform: scale for font sizes, but I wouldn't do that in **Safari**.
