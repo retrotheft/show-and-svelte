@@ -3,7 +3,6 @@ div#stage-container {
    width: var(--width);
    height: var(--height);
    display: grid;
-   /*border: 1px solid cornflowerblue;*/
 }
 
 div#stage {
@@ -11,18 +10,12 @@ div#stage {
    display: grid;
    place-items: center;
    font-size: 1cqmin;
-   /*border: 1px solid hotpink;*/
    user-select: none;
 }
 
 [data-mark] {
    will-change: transform, opacity;
-   /*transition: all 0.5s linear;*/
    position: absolute;
-}
-
-[data-ready="true"] {
-   /*transition: all 0.5s linear;*/
 }
 
 [data-element] {
