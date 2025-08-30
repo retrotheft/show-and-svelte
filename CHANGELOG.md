@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.0.4] - UNRELEASED
+
+- cleaned up superfluous code from `stage.ts`
+
 ## [0.0.3] - 2025-08-29
 
 - rewrote rendering logic, now subdividing snippets instead of direct DOM manipulation

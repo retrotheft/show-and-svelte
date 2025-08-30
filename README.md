@@ -28,18 +28,22 @@ If you just want to record your screen, you're good to go.
 
 If you want to build presentation to js/css, so you can embed it, refer to **BUILD_SETUP.md**.
 
+You can also just make presentations in a Svelte project and build the whole thing together.
+
+In either of the latter two cases, be aware the PresentationViewer very basic right now.
+
 ## Usage
 
 Refer to [this quick 30s tutorial video](https://www.youtube.com/watch?v=Qgq7tLiWoco) to get started.
 
-### Markdown Usage (no syntax highlighting)
+### Markdown Usage (without syntax highlighting)
 
-You can use the included MarkdownIt component like this:
+You can use the included **MarkdownIt** component like this:
 
 ```svelte
 <script lang="ts">
    import { MarkdownIt } from 'show-and-svelte'
-   import content from './your-content?raw' // make sure you use ?raw
+   import content from './your-content.md?raw' // make sure you use ?raw
 </script>
 
 <!-- this id can be anything, it doesn't have to be "markdown" -->
@@ -50,7 +54,7 @@ You can use the included MarkdownIt component like this:
 
 <style>
    /* Style it how you like, this is just an example */
-   .markdown {
+   #markdown {
       place-self: center end;
       font-size: 3em;
       color: white;
@@ -59,7 +63,7 @@ You can use the included MarkdownIt component like this:
 </style>
 ```
 
-If you want syntax highlighting, you will need to install `highlight.js` and configure a **HighlightProvider** to set the `hljs` context. It sounds more difficult than it is.
+If you want syntax highlighting, you will need to install `highlight.js` and set up the `hljs` context.
 
 ### Syntax Highlighting
 
@@ -69,7 +73,7 @@ First, make sure you install `highlight.js`.
 npm install highlight.js
 ```
 
-Next, create a component named something like **HighlightProvider.svelte**, and add something like the following:
+Next, create a component such as **HighlightProvider.svelte**, and do the following:
 
 ```svelte
 <script lang="ts">
@@ -108,9 +112,9 @@ The **HighlightProvider** works with named code blocks in the **MarkdownIt** com
 
 ## Code Editor
 
-The **CodeEditor** component included in Show & Svelte is a modified version of [webcoder49's code-input](https://github.com/WebCoder49/code-input). I had constant headaches with it as a global, so I asked Claude to modify it to a Svelte component, and to update two of its plugins to typescript: `indent` and `auto-close-brackets`. These are iincluded. If you wanted to use any other plugins, they'd probably need to be similarly converted. Let me know if so.
+The **CodeEditor** component included in Show & Svelte is a modified version of [webcoder49's code-input](https://github.com/WebCoder49/code-input). I had constant headaches with it as a global, so I asked Claude to modify it to a Svelte component, and to update two of its plugins to typescript: `indent` and `auto-close-brackets`. These are included. If you wanted to use any other plugins, they'd probably need to be similarly converted. Let me know if so.
 
-**CodeEditor** receives 3 props, only one of which is required:
+**CodeEditor** receives 3 props; `code` is required, the other two are optional:
 
 - `code` is your code. This uses Svelte's `$bindable` rune, so use `bind:code` with a `$state` string.
 - `language` corresponds to a `highlight.js` language. If you omit it, **CodeEditor** will use `hljs.highlightAuto`
@@ -159,7 +163,7 @@ Using this system, Show & Svelte manages to keep your component's reactivity whi
 
 - Always use IDs on component root elements.
 - Root elements with the same ID will transition.
-- Control transitions with before and after elements in surrounding slides.
+- Control transitions with before and after elements in surrounding slides. (for now)
 - When styling, target root elements by **#id** in scoped components.
 - Nested elements can be targeted by their tags or classes.
 - Use Container units like **cqh** and **cqw**.
