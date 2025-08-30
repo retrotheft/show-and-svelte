@@ -1,39 +1,56 @@
 <script lang="ts">
    import "../app.css";
-   // import { PresentationViewer } from "$lib/index.js";
-   import HighlightProvider from "./_components/HighlightProvider.svelte";
 
-   import { Stage } from "$lib/index.js";
-   import Title from "./_slides/1-Title.svelte";
-   import BabysFirstSlide from "./_slides/2-BabysFirstSlide.svelte";
-   import Twins from "./_slides/3-Twins.svelte";
-   import StageSlide from "./_slides/4-StageSlide.svelte"
-   import ThatsIt from './_slides/5-ThatsIt.svelte'
-   import QuickTips from "./_slides/6-QuickTips.svelte";
+   let code = $state(`<script>
+	let message = 'Hello, Svelte REPL!';
+	let count = $state(0);
+<\/script>
 
-   let lastRefresh = $state(0);
+<h1>{message}</h1>
+<button onclick={() => count++}>
+	Count: {count}
+</button>
 
-   $effect(() => {
-      if (import.meta.hot) {
-         lastRefresh = Date.now();
-      }
-   });
+<style>
+	h1 { color: #ff3e00; }
+	button {
+		background: #ff3e00;
+		color: white;
+		border: none;
+		padding: 8px 16px;
+		border-radius: 4px;
+		cursor: pointer;
+	}
+</style>`)
 
+   import { CodeEditor } from '$lib/index.js'
+   import HighlightProvider from './_tutorial-0.0.3/_components/HighlightProvider.svelte'
+   import REPL from '$lib/components/REPL.svelte'
 </script>
 
-<div>
-   {#key lastRefresh}
-      <Stage>
-         <HighlightProvider>
-            <Title />
-            <BabysFirstSlide />
-            <Twins />
-            <StageSlide />
-            <ThatsIt />
-            <QuickTips />
-         </HighlightProvider>
-      </Stage>
-   {/key}
-</div>
+<main>
+   <REPL {code} />
+   <div id="code">
+      <HighlightProvider>
+         <CodeEditor bind:code language="svelte" />
+      </HighlightProvider>
+   </div>
+</main>
 
-<!-- <PresentationViewer /> -->
+<style>
+   main {
+      /*background-color: #222;*/
+      color: white;
+      display: flex;
+      align-items: stretch;
+      width: 1920px;
+      height: 1080px;
+      font-size: 1.5rem;
+      /*border: 1px solid white;*/
+   }
+
+   div#code {
+      background-color: #111;
+      min-width: 60ch;
+   }
+</style>
