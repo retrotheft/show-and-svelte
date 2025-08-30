@@ -111,37 +111,17 @@ export function createSnippetMap(children: Snippet): Map<string, Snippet> {
          snippetMap.set(`${groupIndex}#${element.id}`, createRawSnippet(() => ({
             render: () => `<div data-element="${globalIndex}" data-group="${groupIndex}" data-element-in-group="${elementIndex}"></div>`,
             setup: (container) => {
-               // Find the mark element - it might be the immediate parent or we need to wait for it
                let mark = container.parentNode;
-               // If parent is document fragment, we need to wait for proper mounting
-               if (mark?.nodeName === '#document-fragment') {
-                  // Use MutationObserver or setTimeout to wait for proper mounting
-                  const checkForMark = () => {
-                     mark = container.parentNode;
-                     if (mark && mark instanceof HTMLElement && mark.dataset.mark === 'true') {
-                        setupMarkAndElement(mark, element as HTMLElement);
-                     } else {
-                        requestAnimationFrame(checkForMark);
-                     }
-                  };
-                  checkForMark();
-               } else if (mark && mark instanceof HTMLElement && element instanceof HTMLElement) {
-                  setupMarkAndElement(mark, element);
-               }
-               try {
-                  container.appendChild(element);
-               } catch (e) {
-                  console.error(`Error moving element ${globalIndex}:`, e);
-               }
-
+               if (!mark) return console.warn("No mark found for", element)
+               if (!(mark instanceof HTMLElement)) return console.warn("Mark is not an HTMLElement", mark)
+               setupTransitionEvents(mark, element);
+               swapClass(element, mark)
+               element.removeAttribute("id")
+               container.appendChild(element);
                return () => {
-                  if (mark && mark instanceof HTMLElement) {
-                     mark.id = ""
-                     mark.className = ""
-                  }
+                  swapClass(mark, element)
+                  element.id = mark.id
                }
-
-
             }
          })));
       }
@@ -153,17 +133,12 @@ export function createSnippetMap(children: Snippet): Map<string, Snippet> {
    return snippetMap;
 }
 
-
-
-function setupMarkAndElement(mark: HTMLElement, element: HTMLElement) {
-   setupTransitionEvents(mark, element);
-   mark.id = element.id;
-   if (element.className) element.dataset.className = element.className;
-   element.className = "";
-   mark.className = element.dataset.className ?? "";
+function swapClass(source: Element, target: Element) {
+   target.className = source.className
+   source.removeAttribute('class')
 }
 
-function setupTransitionEvents(mark: HTMLElement, element: HTMLElement) {
+function setupTransitionEvents(mark: HTMLElement, element: Element) {
    mark.ontransitionrun = (event) => {
       const syntheticEvent = new TransitionEvent('transitionrun', {
          propertyName: 'mark', // Generic for multiple properties
