@@ -18,6 +18,7 @@
       place-self: center;
       color: violet;
       transform: translate(-23cqw, -0.5lh) scale(7);
+      /*translate: -10cqw -5cqh;*/
       text-align: center;
    }
 

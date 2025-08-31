@@ -1,5 +1,5 @@
 <script lang="ts">
-  let { code }: { code: string } = $props()
+  let { code, globals = {} }: { code: string, globals?: Record<string, any> } = $props()
 
   let iframe: HTMLIFrameElement;
   let error: string | null = $state(null);
@@ -11,13 +11,13 @@
     const closeBraces = (code.match(/\}/g) || []).length;
     const openParens = (code.match(/\(/g) || []).length;
     const closeParens = (code.match(/\)/g) || []).length;
-    
+
     // Check for incomplete script/style tags
     const scriptTags = (code.match(/<script[^>]*>/g) || []).length;
     const closeScriptTags = (code.match(/<\/script>/g) || []).length;
     const styleTags = (code.match(/<style[^>]*>/g) || []).length;
     const closeStyleTags = (code.match(/<\/style>/g) || []).length;
-    
+
     // Check for incomplete variable declarations like "let count = $sta"
     const scriptMatch = code.match(/<script[^>]*>([\s\S]*?)<\/script>/);
     if (scriptMatch) {
@@ -30,10 +30,10 @@
         return false;
       }
     }
-    
-    return openBraces === closeBraces && 
-           openParens === closeParens && 
-           scriptTags === closeScriptTags && 
+
+    return openBraces === closeBraces &&
+           openParens === closeParens &&
+           scriptTags === closeScriptTags &&
            styleTags === closeStyleTags;
   }
 
@@ -54,10 +54,10 @@
       // Remove script and style content to check template
       tempCode = tempCode.replace(/<script[^>]*>[\s\S]*?<\/script>/g, '');
       tempCode = tempCode.replace(/<style[^>]*>[\s\S]*?<\/style>/g, '');
-      
+
       // Remove JavaScript expressions in attributes that might contain > or <
       tempCode = tempCode.replace(/\{[^}]*\}/g, '{}');
-      
+
       const openBrackets = (tempCode.match(/</g) || []).length;
       const closeBrackets = (tempCode.match(/>/g) || []).length;
       if (openBrackets !== closeBrackets) {
@@ -80,11 +80,6 @@
       if (scriptMatch) {
         scriptContent = scriptMatch[1];
         template = template.replace(scriptMatch[0], '');
-      }
-
-      if (styleMatch) {
-        styleContent = styleMatch[1];
-        template = template.replace(styleMatch[0], '');
       }
 
       if (styleMatch) {
@@ -150,48 +145,82 @@
          return match;
        });
 
-       // Replace {variable} in template with spans that can be updated
-       Object.entries(variables).forEach(([name, value]) => {
-         const regex = new RegExp(`\\{${name}\\}`, 'g');
-         processedTemplate = processedTemplate.replace(regex, `<span id="${name}">${value}</span>`);
-       });
+        // Handle {@render snippet()} calls
+        processedTemplate = processedTemplate.replace(/\{@render\s+(\w+)\(\s*\)\}/g, (match, snippetName) => {
+          return `<div id="snippet-${snippetName}"></div>`;
+        });
+
+        // Replace {variable} in template with spans that can be updated
+        Object.entries(variables).forEach(([name, value]) => {
+          const regex = new RegExp(`\\{${name}\\}`, 'g');
+          processedTemplate = processedTemplate.replace(regex, `<span id="${name}">${value}</span>`);
+        });
 
        // Create simple HTML structure with reactive updates
-       const otherScript = scriptContent.replace(/let\s+\w+\s*=\s*[^;]+;?/g, '');
+       // Remove ALL let variable declarations but keep other script content
+       let otherScript = scriptContent.replace(/let\s+\w+\s*=\s*[^;]+;?/g, '');
 
-       const newHtml = [
-         '<!DOCTYPE html><html><head><meta charset="utf-8"><style>',
-         'body{margin:0;padding:16px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:white;}',
-         styleContent,
-         '</style></head><body>',
-         processedTemplate,
-         '<script>',
-         jsVars,
-         otherScript,
-         'function updateDisplay(){',
-         Object.keys(variables).map(name =>
-           `const el${name}=document.getElementById("${name}");if(el${name})el${name}.textContent=${name};`
-         ).join(''),
-         '}',
-          'document.addEventListener("click",function(e){',
-          'if(e.target.hasAttribute("data-click")){',
-          'e.preventDefault();',
-          'e.stopPropagation();',
+       // Handle const snippet assignments - make them global
+       otherScript = otherScript.replace(/const\s+(\w+)\s*=\s*createRawSnippet/g, 'window.$1 = createRawSnippet');
+
+         // Serialize global functions/values
+         const globalDefinitions = Object.entries(globals).map(([name, value]) => {
+           if (typeof value === 'function') {
+             return `window.${name} = ${value.toString()};`;
+           } else {
+             return `window.${name} = ${JSON.stringify(value)};`;
+           }
+         }).join('\n');
+
+         const newHtml = [
+           '<!DOCTYPE html><html><head><meta charset="utf-8"><style>',
+           'body{margin:0;padding:16px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:white;}',
+           styleContent,
+           '</style></head><body>',
+           processedTemplate,
+           '<script>',
+           globalDefinitions,
+           jsVars,
+           otherScript,
+          'function updateDisplay(){',
+          Object.keys(variables).map(name =>
+            `const el${name}=document.getElementById("${name}");if(el${name})el${name}.textContent=${name};`
+          ).join(''),
+          '}',
+          'function renderSnippets(){',
+          // Find all snippet placeholders and render them
+          'document.querySelectorAll("[id^=snippet-]").forEach(el => {',
+          'const snippetName = el.id.replace("snippet-", "");',
+          'if(window[snippetName] && typeof window[snippetName] === "object" && window[snippetName].render){',
           'try{',
-          'const handler = e.target.getAttribute("data-click");',
-          'eval(handler);',
-          'updateDisplay();',
-          '}catch(err){console.error("Handler error:", err);}',
+          'el.innerHTML = window[snippetName].render();',
+          '}catch(err){',
+          'el.innerHTML = "<div style=\\"color:red\\">Snippet error: " + err.message + "</div>";',
+          '}',
           '}',
           '});',
-         '</' + 'script></body></html>'
-       ].join('');
+          '}',
+          'setTimeout(renderSnippets, 0);', // Render snippets after DOM is ready
+           'document.addEventListener("click",function(e){',
+           'if(e.target.hasAttribute("data-click")){',
+           'e.preventDefault();',
+           'e.stopPropagation();',
+           'try{',
+           'const handler = e.target.getAttribute("data-click");',
+           'eval(handler);',
+           'updateDisplay();',
+           'renderSnippets();', // Re-render snippets after updates
+           '}catch(err){console.error("Handler error:", err);}',
+           '}',
+           '});',
+          '</' + 'script></body></html>'
+        ].join('');
 
-       // Store as last valid HTML and update iframe
-       lastValidHtml = newHtml;
-       if (iframe) {
-         iframe.srcdoc = newHtml;
-       }
+        // Store as last valid HTML and update iframe
+        lastValidHtml = newHtml;
+        if (iframe) {
+          iframe.srcdoc = newHtml;
+        }
 
     } catch (err: any) {
       error = err.message;
@@ -217,13 +246,14 @@
   <iframe
     bind:this={iframe}
     title="Svelte REPL Output"
-    sandbox="allow-scripts"
+    sandbox="allow-scripts allow-modals"
     frameborder="0"
   ></iframe>
 </div>
 
 <style>
   .repl-container {
+     height: 100%;
     width: 100%;
     flex-grow: 1;
     position: relative;

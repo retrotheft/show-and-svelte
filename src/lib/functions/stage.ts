@@ -117,10 +117,13 @@ export function createSnippetMap(children: Snippet): Map<string, Snippet> {
                setupTransitionEvents(mark, element);
                swapClass(element, mark)
                element.removeAttribute("id")
+               const display = (element as HTMLElement).style.display
+               ;(element as HTMLElement).style.display = "contents"
                container.appendChild(element);
                return () => {
                   swapClass(mark, element)
                   element.id = mark.id
+                  ;(element as HTMLElement).style.display = display
                }
             }
          })));

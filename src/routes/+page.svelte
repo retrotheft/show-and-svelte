@@ -1,15 +1,22 @@
 <script lang="ts">
    import "../app.css";
+   import { createRawSnippet } from 'svelte'
 
    let code = $state(`<script>
 	let message = 'Hello, Svelte REPL!';
 	let count = $state(0);
+
+	function increment() {
+		count++;
+	}
 <\/script>
 
 <h1>{message}</h1>
+<button onclick={increment}>Increment</button>
 <button onclick={() => count++}>
 	Count: {count}
 </button>
+<button onclick={() => alert(myUtilFunction('REPL'))}>Use Global Function</button>
 
 <style>
 	h1 { color: #ff3e00; }
@@ -20,16 +27,23 @@
 		padding: 8px 16px;
 		border-radius: 4px;
 		cursor: pointer;
+		margin: 4px;
 	}
 </style>`)
 
-   import { CodeEditor } from '$lib/index.js'
-   import HighlightProvider from './_tutorial-0.0.3/_components/HighlightProvider.svelte'
-   import REPL from '$lib/components/REPL.svelte'
+   // Define global functions you want available in the REPL
+   const globals = {
+     myUtilFunction: (text: string) => `Processed: ${text}`,
+     formatDate: (date: Date) => date.toLocaleDateString(),
+     createRawSnippet
+   };
+
+   import { CodeEditor, REPL } from '$lib/index.js'
+   import HighlightProvider from './tutorial-0.0.3/_components/HighlightProvider.svelte'
 </script>
 
 <main>
-   <REPL {code} />
+   <REPL {code} {globals} />
    <div id="code">
       <HighlightProvider>
          <CodeEditor bind:code language="svelte" />
