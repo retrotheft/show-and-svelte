@@ -52,6 +52,7 @@
       flex: 1;
       min-width: 0;
       color: white;
+      font-size: 1.2em;
    }
 
    #code-editor {

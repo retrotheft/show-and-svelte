@@ -1,9 +1,9 @@
 <script>
-	let count = $state(0);
-	
-	function increment() {
-		count++;
-	}
+   let count = $state(0);
+   
+   function increment() {
+      count++;
+   }
 </script>
 
 <h1>Live REPL Demo!</h1>
@@ -11,13 +11,13 @@
 <button onclick={increment}>Click me!</button>
 
 <style>
-	h1 { color: #ff3e00; }
-	button { 
-		background: #ff3e00; 
-		color: white; 
-		border: none; 
-		padding: 8px 16px; 
-		border-radius: 4px; 
-		cursor: pointer; 
-	}
+   h1 { color: #ff3e00; }
+   button { 
+      background: #ff3e00; 
+      color: white; 
+      border: none; 
+      padding: 8px 16px; 
+      border-radius: 4px; 
+      cursor: pointer; 
+   }
 </style>

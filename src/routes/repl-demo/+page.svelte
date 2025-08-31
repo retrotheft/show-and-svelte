@@ -32,7 +32,7 @@
             <WhatIsREPL />
             <TheChallenge />
             <OurApproach />
-            <ParserMagic />
+            <!-- <ParserMagic /> -->
             <LiveDemo />
             <KeyFeatures />
             <HowItWorks />
