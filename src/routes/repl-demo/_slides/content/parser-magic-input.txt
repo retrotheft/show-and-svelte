@@ -1,5 +1,0 @@
-let count = $state(0);
-
-{count}
-
-onclick={increment}

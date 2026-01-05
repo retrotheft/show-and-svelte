@@ -6,6 +6,7 @@
 - [ ] `BulletList.svelte` component
 - [ ] Create Tutorial Presentation
 - [ ] Add docs to README
+- [ ] if an element is new, can it just use css transitions without a before/after?
 
 ## Soon
 
