@@ -33,6 +33,12 @@
    {/if}
 </div>
 
+<!-- <div id="note">
+   {#if phase === 0}
+      If this is how we normally render snippets, then can we...
+   {/if}
+</div> -->
+
 <template>
    <p>Ordinarily you render a snippet with render children(). So what if I just call that in my script tag?</p>
    <p>Use Svelte Playground iframe - show process until Node or DocumentFragment.</p>
@@ -43,6 +49,14 @@
    #markdown {
       place-self: center;
       font-size: 2rem;
+      text-align: left;
+      width: 60cqw;
+   }
+
+   #note {
       color: orange;
+      place-self: center;
+      transform: translateY(10cqh);
+      font-size: 2rem;
    }
 </style>

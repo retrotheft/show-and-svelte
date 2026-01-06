@@ -8,17 +8,20 @@
    })
 
    let complete = $state(false)
+   let phase = 0
 
    function prev() {
       custom.transform = ""
       custom.opacity = 0
-      complete = false
+      if (phase === 0) return true
+      phase = 0
    }
 
    function next() {
       custom.transform = "translateY(-33cqh)"
       custom.opacity = 1
-      complete = true
+      if (phase === 1) return true
+      phase = 1
    }
 </script>
 

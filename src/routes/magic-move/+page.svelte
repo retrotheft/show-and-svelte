@@ -14,7 +14,7 @@
    import StructureClarification from './_slides/structure-clarification.svelte'
    import ThreeBirdsOneDiv from './_slides/3-birds-1-div.svelte'
    import SwapClassAndId from './_slides/swap-class-and-id.svelte'
-   import FinalCode from './_slides/final-code.svelte'
+   import CreatedSnippet from './_slides/created-snippet.svelte'
    import EpicenterSponsor from './_slides/epicenter-sponsor.svelte'
 
    let lastRefresh = $state(0);
@@ -38,7 +38,7 @@
          <StructureClarification />
          <ThreeBirdsOneDiv />
          <SwapClassAndId />
-         <FinalCode />
+         <CreatedSnippet />
          <EpicenterSponsor />
       </HighlightProvider>
    </Stage>

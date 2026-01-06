@@ -17,6 +17,6 @@
    #markdown {
       place-self: center;
       color: white;
-      width: 40cqw;
+      width: 60cqw;
    }
 </style>
