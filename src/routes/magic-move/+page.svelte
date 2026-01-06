@@ -16,6 +16,14 @@
    import SwapClassAndId from './_slides/swap-class-and-id.svelte'
    import FinalCode from './_slides/final-code.svelte'
    import EpicenterSponsor from './_slides/epicenter-sponsor.svelte'
+
+   let lastRefresh = $state(0);
+
+   $effect(() => {
+      if (import.meta.hot) {
+         lastRefresh = Date.now();
+      }
+   });
 </script>
 
 <div>

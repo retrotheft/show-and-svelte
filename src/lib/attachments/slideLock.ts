@@ -35,9 +35,10 @@ export function slideLock(
       }
 
       function handleKeydown(event: KeyboardEvent) {
+         let unlock: boolean = false;
+         if (event.code === "ArrowLeft" || event.code === "KeyA") unlock = prev();
+         if (event.code === "ArrowRight" || event.code === "KeyD") unlock = next();
          if (!unlock) event.stopPropagation();
-         if (event.code === "ArrowLeft" || event.code === "KeyA") return prev();
-         if (event.code === "ArrowRight" || event.code === "KeyD") return next();
       }
 
       function updateActiveState() {

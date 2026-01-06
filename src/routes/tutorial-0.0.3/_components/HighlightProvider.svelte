@@ -4,6 +4,7 @@
   import Typescript from "highlight.js/lib/languages/typescript"
   import Css from "highlight.js/lib/languages/css"
   import Xml from "highlight.js/lib/languages/xml"
+  import Markdown from "highlight.js/lib/languages/markdown"
   import { setHljsContext } from '$lib/contexts/hljs.js';
   import { type Snippet } from 'svelte';
 
@@ -13,6 +14,7 @@
   hljs.registerLanguage("html", Xml)
   hljs.registerLanguage("javascript", Javascript)
   hljs.registerLanguage("typescript", Typescript)
+  hljs.registerLanguage("markdown", Markdown)
 
   setHljsContext(hljs)
 </script>

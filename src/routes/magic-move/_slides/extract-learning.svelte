@@ -1,8 +1,48 @@
-<h1 id="title">Learning how to extract elements from children snippet</h1>
+<script lang="ts">
+   import { MarkdownIt, slideLock } from '$lib/index.js'
+   import content1 from './content/extract-learning-1.md?raw'
+   import content2 from './content/extract-learning-2.md?raw'
+   import content3 from './content/extract-learning-3.md?raw'
+   import content4 from './content/extract-learning-4.md?raw'
 
-<!-- use Svelte Playground iframe here -->
+   let phase = $state(0)
+   let complete = $state(false)
+   const contents = [ content1, content2, content3, content4 ]
+   const content = $derived(contents[phase])
+
+   function prev() {
+      if (phase === 0) return true
+      phase = Math.max(0, phase-1);
+   }
+
+   function next() {
+      if (phase === 3) return true
+      phase = Math.min(3, phase+1)
+   }
+</script>
+
+<div id="markdown" class="markdown" {@attach slideLock(complete, prev, next)}>
+   {#if phase === 0}
+      <MarkdownIt content={content1} />
+   {:else if phase === 1}
+      <MarkdownIt content={content2} />
+   {:else if phase === 2}
+      <MarkdownIt content={content3} />
+   {:else}
+      <MarkdownIt content={content4} />
+   {/if}
+</div>
 
 <template>
    <p>Ordinarily you render a snippet with render children(). So what if I just call that in my script tag?</p>
    <p>Use Svelte Playground iframe - show process until Node or DocumentFragment.</p>
+   <p>render, in script tag, passing object with before, passing object with before function.</p>
 </template>
+
+<style>
+   #markdown {
+      place-self: center;
+      font-size: 2rem;
+      color: orange;
+   }
+</style>

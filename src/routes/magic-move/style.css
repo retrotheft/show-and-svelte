@@ -5,3 +5,9 @@
 #subtitle {
    color: white;
 }
+
+.markdown {
+   font-size: 2rem;
+   color: white;
+   padding-inline: 1em;
+}
