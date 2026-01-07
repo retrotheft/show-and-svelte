@@ -16,7 +16,7 @@ export function typewriter(
       // Initialize
       currentIndex = 0;
       element.textContent = '';
-      nextInterval = getInterval(text[0] || '');
+      nextInterval = getInterval(text?.[0] || '');
       animationFrameId = requestAnimationFrame(animate);
 
       function getInterval(char: string): number {
@@ -24,6 +24,7 @@ export function typewriter(
       }
 
       function animate(timestamp: number): void {
+         if (!text) return
          if (currentIndex >= text.length) return;
 
          if (lastTimestamp + nextInterval <= timestamp) {
