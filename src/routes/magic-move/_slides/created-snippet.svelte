@@ -7,7 +7,7 @@
 
    let activeLine = $state('')
    let activeLog = $derived.by(() => {
-      const line = activeLine.replaceAll(' ', '')
+      const line = activeLine?.replaceAll(' ', '')
       return logs.find(log => log.trigger === line)
    })
 
