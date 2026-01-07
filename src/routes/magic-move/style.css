@@ -7,3 +7,28 @@ body {
    color: white;
    /*padding-inline: 1em;*/
 }
+
+.console {
+   background-color: #111;
+   border: 1px solid grey;
+   padding: 3em 1em 1.5em 1em;
+   border-radius: 1em;
+   position: relative;
+   font-family: monospace;
+   line-height: 1.75;
+   min-width: max-content;
+   min-height: max-content;
+   width: 100%;
+   height: 100%;
+   font-size: 1.5rem;
+   color: var(--color, white);
+   white-space: pre-wrap;
+}
+
+.console:before {
+   content: "console";
+   position: absolute;
+   top: 0.5em;
+   right: 0.5em;
+   color: grey;
+}

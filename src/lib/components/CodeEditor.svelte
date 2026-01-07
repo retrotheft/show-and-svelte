@@ -9,15 +9,19 @@
       code = $bindable(),
       rows = 5,
       language,
-      placeholder = ""
+      placeholder = "",
+      callback = () => {}
    }: {
       code: string;
       rows?: number;
       language?: string;
       placeholder?: string;
+      callback?: Function
    } = $props();
 
    const hljs = getHljsContext();
+   const lines = $derived(code.split('\n').map(l => l.trim()))
+   let activeLineIndex = $state(0)
 
    // Create plugins using TypeScript functions
    const plugins = $derived(() => {
@@ -65,6 +69,10 @@
    function handleKeydown(event: KeyboardEvent) {
       event.stopPropagation();
    }
+
+   $effect(() => {
+      callback(lines, activeLineIndex)
+   })
 </script>
 
 {#if hljs}
@@ -77,7 +85,7 @@
       oninput={handleInput}
       onkeydown={handleKeydown}
       {rows}>
-      <CodeLines numLines={rows} />
+      <CodeLines numLines={rows} activeCallback={(index: number) => activeLineIndex = index} />
    </CodeInput>
 {:else}
    <div class="loading-placeholder">CodeEditor requires hljs object.</div>

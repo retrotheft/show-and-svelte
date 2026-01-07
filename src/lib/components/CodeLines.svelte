@@ -1,21 +1,13 @@
 <script lang="ts">
-   import CodeEditor from "./CodeEditor.svelte";
-
-   let { numLines } = $props()
+   let { numLines, activeCallback = () => {} } = $props()
 
    const lines = $state(new Array(numLines).fill(''))
-
-   const stopPropagation = {
-      onkeydown: (e: KeyboardEvent) => e.stopPropagation()
-   }
-
-   // hover sends back active line, or whole array is sent back
 </script>
 
 <ol style={`--num-lines: ${numLines};`}>
    {#each lines as line, index}
       <li style={`--line-num: ${index};`}>
-         <span> </span>
+         <button onclick={() => activeCallback(index)}>:)</button>
       </li>
    {/each}
 </ol>
@@ -60,5 +52,12 @@
       color: lightgreen;
       position: absolute;
       right: 0;
+   }
+
+   button {
+      all: unset;
+      transform: translateX(-4ch);
+      color: transparent;
+      cursor: pointer;
    }
 </style>
