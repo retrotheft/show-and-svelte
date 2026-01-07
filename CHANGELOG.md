@@ -2,6 +2,7 @@
 
 ## [0.0.4] - UNRELEASED
 
+- BREAKING CHANGE: `slideLock` now works correctly
 - cleaned up superfluous code from `stage.ts`
 
 ## [0.0.3] - 2025-08-29

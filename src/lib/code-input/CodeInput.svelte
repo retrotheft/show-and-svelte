@@ -1,4 +1,6 @@
 <script lang="ts">
+   import type { Snippet } from "svelte";
+
 	type Props = {
 		value?: string;
 		placeholder?: string;
@@ -29,6 +31,7 @@
 		onkeydown?: (event: KeyboardEvent) => void;
 		onchange?: (event: Event) => void;
 		oninvalid?: (event: Event) => void;
+		children?: Snippet
 	};
 
 	let {
@@ -56,7 +59,8 @@
 		oninput,
 		onkeydown,
 		onchange,
-		oninvalid
+		oninvalid,
+		children
 	}: Props = $props();
 
 	let textareaElement: HTMLTextAreaElement;
@@ -162,7 +166,7 @@
 		onkeydown={handleKeydown}
 		onselectionchange={handleSelectionChange}
 	></textarea>
-
+	{@render children?.()}
 	<pre bind:this={preElement}>
 		<code bind:this={codeElement}></code>
 	</pre>
@@ -186,9 +190,10 @@
 		caret-color: #a9a9a9;
 		white-space: pre;
 		padding: 0 !important;
+		padding-left: 4ch !important;
 		display: grid;
 		grid-template-columns: 100%;
-		grid-template-rows: 100%
+		grid-template-rows: 100%;
 	}
 
 	.code-input:not(.code-input_loaded) {
@@ -203,6 +208,7 @@
 	.code-input:not(.code-input_pre-element-styled) pre code {
 		margin: 0 !important;
 		padding: var(--padding, 16px) !important;
+		/*padding-left: 4ch !important;*/
 		border: 0;
 		min-width: calc(100% - var(--padding, 16px) * 2);
 		min-height: calc(100% - var(--padding, 16px) * 2);
@@ -210,13 +216,13 @@
 		resize: none;
 		grid-row: 1;
 		grid-column: 1;
-		display: block
+		display: block;
 	}
 
 	.code-input.code-input_pre-element-styled pre,
 	.code-input:not(.code-input_pre-element-styled) pre code {
 		height: max-content;
-		width: max-content
+		width: max-content;
 	}
 
 	.code-input.code-input_pre-element-styled pre code,

@@ -5,5 +5,5 @@ body {
 .markdown {
    font-size: 2rem;
    color: white;
-   padding-inline: 1em;
+   /*padding-inline: 1em;*/
 }

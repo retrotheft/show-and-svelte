@@ -1,15 +1,18 @@
 <script lang="ts">
    import CodeInput from "../code-input/CodeInput.svelte";
+   import CodeLines from "./CodeLines.svelte"
    import { createAutoCloseBracketsPlugin } from "../code-input/auto-close-brackets.js";
    import { createIndentPlugin } from "../code-input/indent.js";
    import { getHljsContext } from "$lib/contexts/hljs.js";
 
    let {
       code = $bindable(),
+      rows = 5,
       language,
-      placeholder = "",
+      placeholder = ""
    }: {
       code: string;
+      rows?: number;
       language?: string;
       placeholder?: string;
    } = $props();
@@ -73,7 +76,9 @@
       plugins={plugins()}
       oninput={handleInput}
       onkeydown={handleKeydown}
-   />
+      {rows}>
+      <CodeLines numLines={rows} />
+   </CodeInput>
 {:else}
    <div class="loading-placeholder">CodeEditor requires hljs object.</div>
 {/if}

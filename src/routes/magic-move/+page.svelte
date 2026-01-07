@@ -29,7 +29,7 @@
 <div>
    <Stage>
       <HighlightProvider>
-         <Title />
+         <!-- <Title />
          <Problem />
          <Extract />
          <ExtractLearning />
@@ -37,7 +37,7 @@
          <CreateRawSnippet />
          <StructureClarification />
          <ThreeBirdsOneDiv />
-         <SwapClassAndId />
+         <SwapClassAndId /> -->
          <CreatedSnippet />
          <EpicenterSponsor />
       </HighlightProvider>
