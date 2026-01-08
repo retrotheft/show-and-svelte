@@ -16,7 +16,7 @@
       rows?: number;
       language?: string;
       placeholder?: string;
-      callback?: Function
+      callback?: (lines: string[], index: number) => void
    } = $props();
 
    const hljs = getHljsContext();

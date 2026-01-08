@@ -1,6 +1,6 @@
 <script lang="ts">
-   import { MarkdownIt, CodeEditor, Console } from '$lib/index.js'
-   // import content from './content/created-snippet.md?raw'
+   import { CodeEditor, Console } from '$lib/index.js'
+
    import content from './content/created-snippet.txt?raw'
 
    let code = $state(content.trim())
@@ -31,8 +31,7 @@
 </script>
 
 <div id="editor">
-   <!-- <MarkdownIt {content} /> -->
-   <CodeEditor {code} rows={14} language="javascript" callback={(lines: string[], index: number) => activeLine = lines[index]} />
+   <CodeEditor {code} rows={14} language="javascript" callback={(lines, index) => activeLine = lines[index]} />
 </div>
 
 <div id="console">
