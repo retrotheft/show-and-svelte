@@ -9,12 +9,14 @@
       code = $bindable(),
       rows = 5,
       language,
+      indentSize = 3,
       placeholder = "",
       callback = () => {}
    }: {
       code: string;
       rows?: number;
       language?: string;
+      indentSize?: number;
       placeholder?: string;
       callback?: (lines: string[], index: number) => void
    } = $props();
@@ -39,7 +41,7 @@
       // Indent plugin
       pluginList.push(createIndentPlugin(
          true,  // useSpaces
-         2,     // indentSize
+         indentSize,     // indentSize
          { '(': ')', '[': ']', '{': '}' }  // bracketPairs
       ));
 

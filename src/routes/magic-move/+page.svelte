@@ -31,9 +31,9 @@
    <Stage>
       <HighlightProvider>
          <!-- <Title /> -->
-         <Problem1 />
-         <Problem2 />
-         <Extract />
+         <!-- <Problem1 /> -->
+         <!-- <Problem2 /> -->
+         <!-- <Extract /> -->
          <ExtractLearning />
          <PersistentContainers />
          <CreateRawSnippet />

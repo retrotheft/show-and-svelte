@@ -22,4 +22,5 @@
    #text-2, #slide-2 {
       transform: translate(var(--translate-x), var(--translate-y));
    }
+
 </style>
