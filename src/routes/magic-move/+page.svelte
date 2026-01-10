@@ -6,7 +6,8 @@
    import HighlightProvider from "../tutorial-0.0.3/_components/HighlightProvider.svelte"
 
    import Title from './_slides/title.svelte'
-   import Problem from './_slides/problem.svelte'
+   import Problem1 from './_slides/problem1.svelte'
+   import Problem2 from './_slides/problem2.svelte'
    import Extract from './_slides/extract.svelte'
    import ExtractLearning from './_slides/extract-learning.svelte'
    import PersistentContainers from './_slides/persistent-containers.svelte'
@@ -29,15 +30,16 @@
 <div>
    <Stage>
       <HighlightProvider>
-         <!-- <Title />
-         <Problem />
+         <!-- <Title /> -->
+         <Problem1 />
+         <Problem2 />
          <Extract />
          <ExtractLearning />
          <PersistentContainers />
          <CreateRawSnippet />
          <StructureClarification />
          <ThreeBirdsOneDiv />
-         <SwapClassAndId /> -->
+         <SwapClassAndId />
          <CreatedSnippet />
          <EpicenterSponsor />
       </HighlightProvider>

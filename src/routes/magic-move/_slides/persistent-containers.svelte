@@ -8,5 +8,13 @@
    <p>For this, we'll use createRawSnippet, which has some neat features we can take advantage of.</p>
 </template>
 
+<div id="console" class="console"></div>
+
 <style>
+   #console {
+      place-self: center;
+      transform: translate(-27cqw, 29cqh);
+      width: 30ch;
+      height: 4em;
+   }
 </style>

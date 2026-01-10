@@ -49,7 +49,7 @@
    <CodeLines numLines={3} />
 </div>
 
-<div id="console" {@attach typewriter(output, 40)}></div>
+<div id="console" class="console" {@attach typewriter(output, 40)}></div>
 
 <!-- <div id="note">
    {#if phase === 0}
@@ -85,32 +85,7 @@
    #console {
       place-self: center;
       transform: translateY(15cqh);
-      font-size: 2rem;
-      background-color: #111;
-      border: 1px solid grey;
-      border-radius: 1em;
       width: 50ch;
-      padding: 1em;
       height: 3em;
-      color: lightcoral;
-      position: relative;
    }
-
-   #console:before {
-      content: "console";
-      position: absolute;
-      color: white;
-      font-size: 0.5em;
-      top: 1em;
-      left: 1em;
-      color: grey;
-      font-family: monospace;
-   }
-
-   /*#note {
-      color: orange;
-      place-self: center;
-      transform: translateY(10cqh);
-      font-size: 2rem;
-   }*/
 </style>

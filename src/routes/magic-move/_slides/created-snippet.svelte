@@ -55,9 +55,9 @@
    }
 
    #console {
-      place-self: end center;
-      transform: translateY(-17cqh);
-      width: 200ch !important;
-      height: 9lh;
+      place-self: center;
+      transform: translateY(27cqh);
+      width: 200ch;
+      height: 13lh;
    }
 </style>
