@@ -1,6 +1,5 @@
 <script lang="ts">
    import SlideContents from '../_components/SlideContents.svelte'
-   import YouAreHere from '../_components/YouAreHere.svelte'
 </script>
 
 <template>

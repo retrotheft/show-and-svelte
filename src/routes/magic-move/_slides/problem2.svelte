@@ -1,7 +1,6 @@
 <script lang="ts">
    import { typewriter } from '$lib/index.js'
    import SlideContents from '../_components/SlideContents.svelte'
-   import YouAreHere from '../_components/YouAreHere.svelte'
 </script>
 
 <div id="text-1" class="text" {@attach typewriter("How can we create an automatic transition between them...", 1)}></div>
