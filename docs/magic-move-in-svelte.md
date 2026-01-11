@@ -2,9 +2,13 @@
 
 *A big thankyou to [epicenter](https://github.com/epicenter-so/epicenter) for sponsoring my open source work.*
 
+======================================================= PROBLEM =======================================================
+
 Earlier this week, I woke up with a thought: would it be possible to automate transitions between components purely by using element IDs, in a similar way to how View Transitions or Magic Move work? The catch was, I specifically did not want to write ANY transition logic. At all.
 
 First I figured that in order to transition an element through multiple scenes, it would need to have a persistent 'container' that never left the page, and I would need to somehow swap the relevant elements in and out. Let's call these persistent containers 'marks'.
+
+================================================== EXTRACT LEARNING ==================================================
 
 My first plan was, I would insert all the scenes into a Stage component as a children snippet, and then instead of rendering the snippet, I would just extract all the elements and store them, appending and removing them from their marks when their scene came about. So challenge one: How do you get elements out of a Svelte snippet instead of rendering it?
 
@@ -25,9 +29,9 @@ children({ before: (...args) => console.dir(args) })
 
 From here, I scanned through every element, (helpfully separated per component by comment nodes, thanks Svelte) and added each id to a set. Then I created persistent marks from this set.
 
-Here was the real challenge though: How do you swap elements in and out of your DOM while transferring their styles to a parent element and ensuring everything looks the way it ought to?
+================================================= CREATE RAW SNIPPET =================================================
 
-Well, you can do it manually if you want. I did. I even made Show & Svelte's first video this way. But it's incredibly brittle, it breaks some reactivity, and in general it's just a Rube Goldberg machine with an arsenal of edge cases to sting you with. So let's skip over the entire ordeal and keep this article on track. If you want to see what it looked like, [here you go.](https://github.com/retrotheft/show-and-svelte/blob/e82e8a1d41ee81338fb9595e7fd47aa517fabeb0/src/lib/functions/stage.ts)
+Here was the real challenge though: How do you swap elements in and out of your DOM while transferring their styles to a parent element and ensuring everything looks the way it ought to?
 
 Fast forward a couple of days, and I was still thinking about snippets. Since `createRawSnippet` exists, I thought, it must be possible to convert all those root elements into their own snippets, and then render them inside their marks.
 
@@ -87,6 +91,8 @@ const mySnippet = createRawSnippet(() => ({
 ```
 
 So we know how to create a reactive snippet programmatically, and we have a bunch of elements that we want to render inside their marks. Feels like we're pretty close to a solution.
+
+==================================================== 3 BIRDS 1 DIV ====================================================
 
 Now we need to render an element that we can manipulate in `setup`. This obviously can't be our mark, because that already exists and we need it to be persistent, so we need to create an intermediary. No problem. We'll just put a div there and use `display: contents`* to prevent it from bothering us, stylistically speaking. Then since we're rendering these snippets directly inside our marks, we can get our mark reference with `div.parentNode`. Easy.
 

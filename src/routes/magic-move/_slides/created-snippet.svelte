@@ -55,7 +55,6 @@
    }
 
    #console {
-      place-self: center;
       transform: translateY(27cqh);
       width: 200ch;
       height: 13lh;

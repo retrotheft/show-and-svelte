@@ -1,15 +1,10 @@
-###### createRawSnippet with new reactive element
+###### createRawSnippet official docs
 
 ```ts
-let count = $state(0)
 
-const mySnippet = createRawSnippet(() => ({
-      render: () => `<div></div>`,
-      setup: (div) => {
-         $effect(() => {
-            div.textContent = count
-         })
-      }
-   })
-)
+
+        render: () => string;
+        setup?: (element: Element) => void | (() => void);
+
+
 ```

@@ -44,4 +44,10 @@ body {
    border: 1px solid white;
    height: 40cqh;
    aspect-ratio: 1;
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   grid-template-rows: 1fr 1fr;
+   place-items: center;
+   grid-auto-flow: column;
+   padding-inline: 3em;
 }

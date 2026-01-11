@@ -10,8 +10,10 @@
    import Problem2 from './_slides/problem2.svelte'
    import Extract from './_slides/extract.svelte'
    import ExtractLearning from './_slides/extract-learning.svelte'
-   import PersistentContainers from './_slides/persistent-containers.svelte'
+   import Mark1 from './_slides/Mark-1.svelte'
+   import Mark2 from './_slides/Mark-2.svelte'
    import CreateRawSnippet from './_slides/create-raw-snippet.svelte'
+   import CreateRawSnippet2 from './_slides/create-raw-snippet-2.svelte'
    import StructureClarification from './_slides/structure-clarification.svelte'
    import ThreeBirdsOneDiv from './_slides/3-birds-1-div.svelte'
    import SwapClassAndId from './_slides/swap-class-and-id.svelte'
@@ -30,13 +32,15 @@
 <div>
    <Stage>
       <HighlightProvider>
-         <!-- <Title /> -->
-         <!-- <Problem1 /> -->
-         <!-- <Problem2 /> -->
-         <!-- <Extract /> -->
+         <Title />
+         <Problem1 />
+         <Problem2 />
+         <Extract />
          <ExtractLearning />
-         <PersistentContainers />
+         <Mark1 />
+         <Mark2 />
          <CreateRawSnippet />
+         <CreateRawSnippet2 />
          <StructureClarification />
          <ThreeBirdsOneDiv />
          <SwapClassAndId />
