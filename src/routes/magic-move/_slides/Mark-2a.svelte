@@ -7,9 +7,11 @@
 </div>
 
 <div id="mark-example">
-   <h2>This element stays on the stage at all times. It is what transitions. Show & Svelte refers to this as the 'Mark'.</h2>
-   <div id="slide-element-example">This element is from one particular slide. It only exists while its slide is active, then it gets replaced. Show & Svelte calls this the 'element'.</div>
+   <h2>Persistent Element (the 'Mark')</h2>
+   <footer>class="s-5ckq_owKfa1h"</footer>
 </div>
+<div id="slide-element-1">Element from Slide 1</div>
+<div id="slide-element-2">Element from Slide 2</div>
 
 <template>
    <p>Next problem. How can we swap elements in and out of persistent containers in the DOM while keeping reactivity and styles intact?</p>
@@ -39,26 +41,32 @@
    }
 
    #mark-example {
-      color: violet;
+      color: lightcoral;
       border: 5px dashed grey;
       padding: 1em;
       font-size: 1.5rem;
       text-align: center;
       width: 40ch;
-      /*interpolate-size: allow-keywords;*/
       height: 13lh;
-      display: flex;
-      flex-direction: column;
+      transform: translate(-15cqw, -10cqh);
    }
 
    h2 {
       margin-top: 0em;
    }
 
-   #slide-element-example {
+   #slide-element-1 {
       color: white;
-      border: 1px solid lightcoral;
+      background: lightcoral;
       padding: 1em;
-      flex-grow: 1;
+      transform: translate(-15cqw, -6cqh);
+      font-size: 2rem;
+   }
+
+   #slide-element-2 {
+      color: white;
+      background: lightgreen;
+      padding: 1em;
+      transform: translate(100cqw, 100cqh);
    }
 </style>

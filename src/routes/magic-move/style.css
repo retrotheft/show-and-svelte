@@ -50,4 +50,13 @@ body {
    place-items: center;
    grid-auto-flow: column;
    padding-inline: 3em;
+
+   &:hover {
+      transform: scale(1.2);
+   }
+}
+
+div#text-1.text {
+   color: violet !important;
+
 }

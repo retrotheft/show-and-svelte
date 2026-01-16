@@ -29,6 +29,11 @@
    .slide {
       --translate-x: 25cqw;
       --translate-y: 25cqh;
+      transform-origin: center;
+   }
+
+   #slide-1:hover {
+      transform: translate(var(--translate-x), calc(var(--translate-y) * -1)) scale(1.2);
    }
 
    #text-1, #slide-1 {

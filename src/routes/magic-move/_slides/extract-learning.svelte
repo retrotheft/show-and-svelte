@@ -30,7 +30,10 @@
    ]
 </script>
 
+<div id="note-3"><span>Can we extract the children snippet's contents?</span></div>
+
 <div id="editor">
+   <span>Stage.svelte</span>
    <CodeEditor {code} rows={14} language="ts" callback={(lines, index) => activeLine = lines[index]} indentSize={3} />
 </div>
 
@@ -51,11 +54,24 @@
       border: 1px solid grey;
       position: relative;
       transform: translateY(-10cqh);
+
+      & span {
+         font-family: monospace;
+         color: grey;
+         position: absolute;
+         bottom: 100%;
+         right: 0;
+      }
    }
 
    #console {
       transform: translate(0, 27cqh);
       width: 200ch;
       height: 9lh;
+   }
+
+   #note-3 {
+      font-size: 2rem;
+      transform: translateY(-43cqh);
    }
 </style>

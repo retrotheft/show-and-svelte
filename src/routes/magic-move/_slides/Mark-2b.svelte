@@ -7,9 +7,11 @@
 </div>
 
 <div id="mark-example">
-   <h2>This is the same Mark element as before. It's controlling the transition.</h2>
-   <div id="slide-element-example">This element has now been replaced, and is from a different slide.</div>
+   <h2>Persistent Element (the 'Mark')</h2>
+   <footer>class="s-WTVhqYgRzQyQ"</footer>
 </div>
+<div id="slide-element-1">Element from Slide 1</div>
+<div id="slide-element-2">Element from Slide 2</div>
 
 <template>
    <p>Next problem. How can we swap elements in and out of persistent containers in the DOM while keeping reactivity and styles intact?</p>
@@ -39,7 +41,7 @@
    }
 
    #mark-example {
-      color: cornflowerblue;
+      color: lightgreen;
       border: 5px dashed grey;
       padding: 1em;
       font-size: 1.5rem;
@@ -47,19 +49,25 @@
       width: 40ch;
       transform: translate(10cqw, 10cqh);
       /*interpolate-size: allow-keywords;*/
-      height: 15lh;
-      display: flex;
-      flex-direction: column;
+      height: 13lh;
    }
 
    h2 {
       margin-top: 0em;
    }
 
-   #slide-element-example {
+   #slide-element-1 {
       color: white;
-      border: 1px solid lightgreen;
+      background: lightcoral;
       padding: 1em;
-      flex-grow: 1;
+      transform: translate(-100cqw, 100cqh);
+   }
+
+   #slide-element-2 {
+      color: black;
+      background-color: lightgreen;
+      padding: 1em;
+      transform: translate(6vw, 10vh);
+      font-size: 2rem;
    }
 </style>

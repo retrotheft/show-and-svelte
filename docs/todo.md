@@ -6,7 +6,7 @@
 - [ ] `BulletList.svelte` component
 - [ ] Create Tutorial Presentation
 - [ ] Add docs to README
-- [ ] if an element is new, can it just use css transitions without a before/after?
+- [ ] removing before/after transition bookends - add 'in' and 'out' attributes to Marks based on whether they exist above or below the current index. Then just use CSS styles to transition them. So, if a mark has relevant elements on slide 1, 2 and 3, then slide 0 would impart the "in" attribute, and slide 4 onwards would impart the "out" attribute. Marks would also need to be passed the lower or upper bound snippet somehow. Or... what if I passed the hit/miss status to the snippet, and if it misses, instead of removing the element, it just applies the inactive attribute...
 
 ## Soon
 
