@@ -9,12 +9,14 @@ export function typewriter(text, interval = 75, multipliers = { ' ': 2 }) {
         // Initialize
         currentIndex = 0;
         element.textContent = '';
-        nextInterval = getInterval(text[0] || '');
+        nextInterval = getInterval(text?.[0] || '');
         animationFrameId = requestAnimationFrame(animate);
         function getInterval(char) {
             return interval * (multipliers[char] || 1);
         }
         function animate(timestamp) {
+            if (!text)
+                return;
             if (currentIndex >= text.length)
                 return;
             if (lastTimestamp + nextInterval <= timestamp) {

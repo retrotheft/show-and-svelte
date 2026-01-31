@@ -1,9 +1,9 @@
 <script lang="ts">
-   import '../../app.css'
+   import '../../../app.css'
    import './style.css'
 
    import { Stage } from '$lib/index.js'
-   import HighlightProvider from "../tutorial-0.0.3/_components/HighlightProvider.svelte"
+   import HighlightProvider from "../../tutorial-0.0.3/_components/HighlightProvider.svelte"
 
    import Title from './_slides/title.svelte'
    import Problem1 from './_slides/problem1.svelte'

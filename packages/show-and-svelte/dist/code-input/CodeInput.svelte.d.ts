@@ -1,3 +1,4 @@
+import type { Snippet } from "svelte";
 type Props = {
     value?: string;
     placeholder?: string;
@@ -28,6 +29,7 @@ type Props = {
     onkeydown?: (event: KeyboardEvent) => void;
     onchange?: (event: Event) => void;
     oninvalid?: (event: Event) => void;
+    children?: Snippet;
 };
 declare const CodeInput: import("svelte").Component<Props, {}, "value">;
 type CodeInput = ReturnType<typeof CodeInput>;

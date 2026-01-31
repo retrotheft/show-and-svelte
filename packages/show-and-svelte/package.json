@@ -52,11 +52,6 @@
 	"keywords": [
 		"svelte"
 	],
-	"pnpm": {
-		"onlyBuiltDependencies": [
-			"esbuild"
-		]
-	},
 	"dependencies": {
 		"markdown-it": "^14.1.0"
 	}

@@ -1,88 +1,6 @@
-import { b as base64_encode, t as text_decoder, c as base64_decode } from "./utils.js";
-const escaped = {
-  "<": "\\u003C",
-  "\\": "\\\\",
-  "\b": "\\b",
-  "\f": "\\f",
-  "\n": "\\n",
-  "\r": "\\r",
-  "	": "\\t",
-  "\u2028": "\\u2028",
-  "\u2029": "\\u2029"
-};
-class DevalueError extends Error {
-  /**
-   * @param {string} message
-   * @param {string[]} keys
-   */
-  constructor(message, keys) {
-    super(message);
-    this.name = "DevalueError";
-    this.path = keys.join("");
-  }
-}
-function is_primitive(thing) {
-  return Object(thing) !== thing;
-}
-const object_proto_names = /* @__PURE__ */ Object.getOwnPropertyNames(
-  Object.prototype
-).sort().join("\0");
-function is_plain_object(thing) {
-  const proto = Object.getPrototypeOf(thing);
-  return proto === Object.prototype || proto === null || Object.getOwnPropertyNames(proto).sort().join("\0") === object_proto_names;
-}
-function get_type(thing) {
-  return Object.prototype.toString.call(thing).slice(8, -1);
-}
-function get_escaped_char(char) {
-  switch (char) {
-    case '"':
-      return '\\"';
-    case "<":
-      return "\\u003C";
-    case "\\":
-      return "\\\\";
-    case "\n":
-      return "\\n";
-    case "\r":
-      return "\\r";
-    case "	":
-      return "\\t";
-    case "\b":
-      return "\\b";
-    case "\f":
-      return "\\f";
-    case "\u2028":
-      return "\\u2028";
-    case "\u2029":
-      return "\\u2029";
-    default:
-      return char < " " ? `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}` : "";
-  }
-}
-function stringify_string(str) {
-  let result = "";
-  let last_pos = 0;
-  const len = str.length;
-  for (let i = 0; i < len; i += 1) {
-    const char = str[i];
-    const replacement = get_escaped_char(char);
-    if (replacement) {
-      result += str.slice(last_pos, i) + replacement;
-      last_pos = i + 1;
-    }
-  }
-  return `"${last_pos === 0 ? str : result + str.slice(last_pos)}"`;
-}
-function enumerable_symbols(object) {
-  return Object.getOwnPropertySymbols(object).filter(
-    (symbol) => Object.getOwnPropertyDescriptor(object, symbol).enumerable
-  );
-}
-const is_identifier = /^[a-zA-Z_$][a-zA-Z_$0-9]*$/;
-function stringify_key(key) {
-  return is_identifier.test(key) ? "." + key : "[" + JSON.stringify(key) + "]";
-}
+import { t as text_decoder, b as base64_encode, c as base64_decode } from "./utils.js";
+import { SvelteKitError } from "@sveltejs/kit/internal";
+import { D as DevalueError, i as is_primitive, g as get_type, a as is_plain_object, e as enumerable_symbols, s as stringify_key, b as stringify_string } from "./utils2.js";
 function encode64(arraybuffer) {
   const dv = new DataView(arraybuffer);
   let binaryString = "";
@@ -172,13 +90,16 @@ function unflatten(parsed, revivers) {
     parsed
   );
   const hydrated = Array(values.length);
+  let hydrating = null;
   function hydrate(index, standalone = false) {
     if (index === UNDEFINED) return void 0;
     if (index === NAN) return NaN;
     if (index === POSITIVE_INFINITY) return Infinity;
     if (index === NEGATIVE_INFINITY) return -Infinity;
     if (index === NEGATIVE_ZERO) return -0;
-    if (standalone) throw new Error(`Invalid input`);
+    if (standalone || typeof index !== "number") {
+      throw new Error(`Invalid input`);
+    }
     if (index in hydrated) return hydrated[index];
     const value = values[index];
     if (!value || typeof value !== "object") {
@@ -186,9 +107,20 @@ function unflatten(parsed, revivers) {
     } else if (Array.isArray(value)) {
       if (typeof value[0] === "string") {
         const type = value[0];
-        const reviver = revivers?.[type];
+        const reviver = revivers && Object.hasOwn(revivers, type) ? revivers[type] : void 0;
         if (reviver) {
-          return hydrated[index] = reviver(hydrate(value[1]));
+          let i = value[1];
+          if (typeof i !== "number") {
+            i = values.push(value[1]) - 1;
+          }
+          hydrating ??= /* @__PURE__ */ new Set();
+          if (hydrating.has(i)) {
+            throw new Error("Invalid circular reference");
+          }
+          hydrating.add(i);
+          hydrated[index] = reviver(hydrate(i));
+          hydrating.delete(i);
+          return hydrated[index];
         }
         switch (type) {
           case "Date":
@@ -235,17 +167,44 @@ function unflatten(parsed, revivers) {
           case "Float64Array":
           case "BigInt64Array":
           case "BigUint64Array": {
+            if (values[value[1]][0] !== "ArrayBuffer") {
+              throw new Error("Invalid data");
+            }
             const TypedArrayConstructor = globalThis[type];
-            const base64 = value[1];
-            const arraybuffer = decode64(base64);
-            const typedArray = new TypedArrayConstructor(arraybuffer);
-            hydrated[index] = typedArray;
+            const buffer = hydrate(value[1]);
+            const typedArray = new TypedArrayConstructor(buffer);
+            hydrated[index] = value[2] !== void 0 ? typedArray.subarray(value[2], value[3]) : typedArray;
             break;
           }
           case "ArrayBuffer": {
             const base64 = value[1];
+            if (typeof base64 !== "string") {
+              throw new Error("Invalid ArrayBuffer encoding");
+            }
             const arraybuffer = decode64(base64);
             hydrated[index] = arraybuffer;
+            break;
+          }
+          case "Temporal.Duration":
+          case "Temporal.Instant":
+          case "Temporal.PlainDate":
+          case "Temporal.PlainTime":
+          case "Temporal.PlainDateTime":
+          case "Temporal.PlainMonthDay":
+          case "Temporal.PlainYearMonth":
+          case "Temporal.ZonedDateTime": {
+            const temporalName = type.slice(9);
+            hydrated[index] = Temporal[temporalName].from(value[1]);
+            break;
+          }
+          case "URL": {
+            const url = new URL(value[1]);
+            hydrated[index] = url;
+            break;
+          }
+          case "URLSearchParams": {
+            const url = new URLSearchParams(value[1]);
+            hydrated[index] = url;
             break;
           }
           default:
@@ -264,6 +223,9 @@ function unflatten(parsed, revivers) {
       const object = {};
       hydrated[index] = object;
       for (const key in value) {
+        if (key === "__proto__") {
+          throw new Error("Cannot parse an object with a `__proto__` property");
+        }
         const n = value[key];
         object[key] = hydrate(n);
       }
@@ -284,15 +246,12 @@ function stringify$1(value, reducers) {
   const keys = [];
   let p = 0;
   function flatten(thing) {
-    if (typeof thing === "function") {
-      throw new DevalueError(`Cannot stringify a function`, keys);
-    }
-    if (indexes.has(thing)) return indexes.get(thing);
     if (thing === void 0) return UNDEFINED;
     if (Number.isNaN(thing)) return NAN;
     if (thing === Infinity) return POSITIVE_INFINITY;
     if (thing === -Infinity) return NEGATIVE_INFINITY;
     if (thing === 0 && 1 / thing < 0) return NEGATIVE_ZERO;
+    if (indexes.has(thing)) return indexes.get(thing);
     const index2 = p++;
     indexes.set(thing, index2);
     for (const { key, fn } of custom) {
@@ -301,6 +260,9 @@ function stringify$1(value, reducers) {
         stringified[index2] = `["${key}",${flatten(value2)}]`;
         return index2;
       }
+    }
+    if (typeof thing === "function") {
+      throw new DevalueError(`Cannot stringify a function`, keys, thing, value);
     }
     let str = "";
     if (is_primitive(thing)) {
@@ -319,6 +281,12 @@ function stringify$1(value, reducers) {
         case "Date":
           const valid = !isNaN(thing.getDate());
           str = `["Date","${valid ? thing.toISOString() : ""}"]`;
+          break;
+        case "URL":
+          str = `["URL",${stringify_string(thing.toString())}]`;
+          break;
+        case "URLSearchParams":
+          str = `["URLSearchParams",${stringify_string(thing.toString())}]`;
           break;
         case "RegExp":
           const { source, flags } = thing;
@@ -368,8 +336,14 @@ function stringify$1(value, reducers) {
         case "BigInt64Array":
         case "BigUint64Array": {
           const typedArray = thing;
-          const base64 = encode64(typedArray.buffer);
-          str = '["' + type + '","' + base64 + '"]';
+          str = '["' + type + '",' + flatten(typedArray.buffer);
+          const a = thing.byteOffset;
+          const b = a + thing.byteLength;
+          if (a > 0 || b !== typedArray.buffer.byteLength) {
+            const m = +/(\d+)/.exec(type)[1] / 8;
+            str += `,${a / m},${b / m}`;
+          }
+          str += "]";
           break;
         }
         case "ArrayBuffer": {
@@ -378,17 +352,31 @@ function stringify$1(value, reducers) {
           str = `["ArrayBuffer","${base64}"]`;
           break;
         }
+        case "Temporal.Duration":
+        case "Temporal.Instant":
+        case "Temporal.PlainDate":
+        case "Temporal.PlainTime":
+        case "Temporal.PlainDateTime":
+        case "Temporal.PlainMonthDay":
+        case "Temporal.PlainYearMonth":
+        case "Temporal.ZonedDateTime":
+          str = `["${type}",${stringify_string(thing.toString())}]`;
+          break;
         default:
           if (!is_plain_object(thing)) {
             throw new DevalueError(
               `Cannot stringify arbitrary non-POJOs`,
-              keys
+              keys,
+              thing,
+              value
             );
           }
           if (enumerable_symbols(thing).length > 0) {
             throw new DevalueError(
               `Cannot stringify POJOs with symbolic keys`,
-              keys
+              keys,
+              thing,
+              value
             );
           }
           if (Object.getPrototypeOf(thing) === null) {
@@ -429,6 +417,506 @@ function stringify_primitive(thing) {
   if (type === "bigint") return `["BigInt","${thing}"]`;
   return String(thing);
 }
+function set_nested_value(object, path_string, value) {
+  if (path_string.startsWith("n:")) {
+    path_string = path_string.slice(2);
+    value = value === "" ? void 0 : parseFloat(value);
+  } else if (path_string.startsWith("b:")) {
+    path_string = path_string.slice(2);
+    value = value === "on";
+  }
+  deep_set(object, split_path(path_string), value);
+}
+function convert_formdata(data) {
+  const result = {};
+  for (let key of data.keys()) {
+    const is_array = key.endsWith("[]");
+    let values = data.getAll(key);
+    if (is_array) key = key.slice(0, -2);
+    if (values.length > 1 && !is_array) {
+      throw new Error(`Form cannot contain duplicated keys — "${key}" has ${values.length} values`);
+    }
+    values = values.filter(
+      (entry) => typeof entry === "string" || entry.name !== "" || entry.size > 0
+    );
+    if (key.startsWith("n:")) {
+      key = key.slice(2);
+      values = values.map((v) => v === "" ? void 0 : parseFloat(
+        /** @type {string} */
+        v
+      ));
+    } else if (key.startsWith("b:")) {
+      key = key.slice(2);
+      values = values.map((v) => v === "on");
+    }
+    set_nested_value(result, key, is_array ? values : values[0]);
+  }
+  return result;
+}
+const BINARY_FORM_CONTENT_TYPE = "application/x-sveltekit-formdata";
+const BINARY_FORM_VERSION = 0;
+const HEADER_BYTES = 1 + 4 + 2;
+async function deserialize_binary_form(request) {
+  if (request.headers.get("content-type") !== BINARY_FORM_CONTENT_TYPE) {
+    const form_data = await request.formData();
+    return { data: convert_formdata(form_data), meta: {}, form_data };
+  }
+  if (!request.body) {
+    throw deserialize_error("no body");
+  }
+  const content_length = parseInt(request.headers.get("content-length") ?? "");
+  if (Number.isNaN(content_length)) {
+    throw deserialize_error("invalid Content-Length header");
+  }
+  const reader = request.body.getReader();
+  const chunks = [];
+  function get_chunk(index) {
+    if (index in chunks) return chunks[index];
+    let i = chunks.length;
+    while (i <= index) {
+      chunks[i] = reader.read().then((chunk) => chunk.value);
+      i++;
+    }
+    return chunks[index];
+  }
+  async function get_buffer(offset, length) {
+    let start_chunk;
+    let chunk_start = 0;
+    let chunk_index;
+    for (chunk_index = 0; ; chunk_index++) {
+      const chunk = await get_chunk(chunk_index);
+      if (!chunk) return null;
+      const chunk_end = chunk_start + chunk.byteLength;
+      if (offset >= chunk_start && offset < chunk_end) {
+        start_chunk = chunk;
+        break;
+      }
+      chunk_start = chunk_end;
+    }
+    if (offset + length <= chunk_start + start_chunk.byteLength) {
+      return start_chunk.subarray(offset - chunk_start, offset + length - chunk_start);
+    }
+    const chunks2 = [start_chunk.subarray(offset - chunk_start)];
+    let cursor = start_chunk.byteLength - offset + chunk_start;
+    while (cursor < length) {
+      chunk_index++;
+      let chunk = await get_chunk(chunk_index);
+      if (!chunk) return null;
+      if (chunk.byteLength > length - cursor) {
+        chunk = chunk.subarray(0, length - cursor);
+      }
+      chunks2.push(chunk);
+      cursor += chunk.byteLength;
+    }
+    const buffer = new Uint8Array(length);
+    cursor = 0;
+    for (const chunk of chunks2) {
+      buffer.set(chunk, cursor);
+      cursor += chunk.byteLength;
+    }
+    return buffer;
+  }
+  const header = await get_buffer(0, HEADER_BYTES);
+  if (!header) throw deserialize_error("too short");
+  if (header[0] !== BINARY_FORM_VERSION) {
+    throw deserialize_error(`got version ${header[0]}, expected version ${BINARY_FORM_VERSION}`);
+  }
+  const header_view = new DataView(header.buffer, header.byteOffset, header.byteLength);
+  const data_length = header_view.getUint32(1, true);
+  if (HEADER_BYTES + data_length > content_length) {
+    throw deserialize_error("data overflow");
+  }
+  const file_offsets_length = header_view.getUint16(5, true);
+  if (HEADER_BYTES + data_length + file_offsets_length > content_length) {
+    throw deserialize_error("file offset table overflow");
+  }
+  const data_buffer = await get_buffer(HEADER_BYTES, data_length);
+  if (!data_buffer) throw deserialize_error("data too short");
+  let file_offsets;
+  let files_start_offset;
+  if (file_offsets_length > 0) {
+    const file_offsets_buffer = await get_buffer(HEADER_BYTES + data_length, file_offsets_length);
+    if (!file_offsets_buffer) throw deserialize_error("file offset table too short");
+    file_offsets = /** @type {Array<number>} */
+    JSON.parse(text_decoder.decode(file_offsets_buffer));
+    files_start_offset = HEADER_BYTES + data_length + file_offsets_length;
+  }
+  const [data, meta] = parse(text_decoder.decode(data_buffer), {
+    File: ([name, type, size, last_modified, index]) => {
+      if (files_start_offset + file_offsets[index] + size > content_length) {
+        throw deserialize_error("file data overflow");
+      }
+      return new Proxy(
+        new LazyFile(
+          name,
+          type,
+          size,
+          last_modified,
+          get_chunk,
+          files_start_offset + file_offsets[index]
+        ),
+        {
+          getPrototypeOf() {
+            return File.prototype;
+          }
+        }
+      );
+    }
+  });
+  void (async () => {
+    let has_more = true;
+    while (has_more) {
+      const chunk = await get_chunk(chunks.length);
+      has_more = !!chunk;
+    }
+  })();
+  return { data, meta, form_data: null };
+}
+function deserialize_error(message) {
+  return new SvelteKitError(400, "Bad Request", `Could not deserialize binary form: ${message}`);
+}
+class LazyFile {
+  /** @type {(index: number) => Promise<Uint8Array<ArrayBuffer> | undefined>} */
+  #get_chunk;
+  /** @type {number} */
+  #offset;
+  /**
+   * @param {string} name
+   * @param {string} type
+   * @param {number} size
+   * @param {number} last_modified
+   * @param {(index: number) => Promise<Uint8Array<ArrayBuffer> | undefined>} get_chunk
+   * @param {number} offset
+   */
+  constructor(name, type, size, last_modified, get_chunk, offset) {
+    this.name = name;
+    this.type = type;
+    this.size = size;
+    this.lastModified = last_modified;
+    this.webkitRelativePath = "";
+    this.#get_chunk = get_chunk;
+    this.#offset = offset;
+    this.arrayBuffer = this.arrayBuffer.bind(this);
+    this.bytes = this.bytes.bind(this);
+    this.slice = this.slice.bind(this);
+    this.stream = this.stream.bind(this);
+    this.text = this.text.bind(this);
+  }
+  /** @type {ArrayBuffer | undefined} */
+  #buffer;
+  async arrayBuffer() {
+    this.#buffer ??= await new Response(this.stream()).arrayBuffer();
+    return this.#buffer;
+  }
+  async bytes() {
+    return new Uint8Array(await this.arrayBuffer());
+  }
+  /**
+   * @param {number=} start
+   * @param {number=} end
+   * @param {string=} contentType
+   */
+  slice(start = 0, end = this.size, contentType = this.type) {
+    if (start < 0) {
+      start = Math.max(this.size + start, 0);
+    } else {
+      start = Math.min(start, this.size);
+    }
+    if (end < 0) {
+      end = Math.max(this.size + end, 0);
+    } else {
+      end = Math.min(end, this.size);
+    }
+    const size = Math.max(end - start, 0);
+    const file = new LazyFile(
+      this.name,
+      contentType,
+      size,
+      this.lastModified,
+      this.#get_chunk,
+      this.#offset + start
+    );
+    return file;
+  }
+  stream() {
+    let cursor = 0;
+    let chunk_index = 0;
+    return new ReadableStream({
+      start: async (controller) => {
+        let chunk_start = 0;
+        let start_chunk = null;
+        for (chunk_index = 0; ; chunk_index++) {
+          const chunk = await this.#get_chunk(chunk_index);
+          if (!chunk) return null;
+          const chunk_end = chunk_start + chunk.byteLength;
+          if (this.#offset >= chunk_start && this.#offset < chunk_end) {
+            start_chunk = chunk;
+            break;
+          }
+          chunk_start = chunk_end;
+        }
+        if (this.#offset + this.size <= chunk_start + start_chunk.byteLength) {
+          controller.enqueue(
+            start_chunk.subarray(this.#offset - chunk_start, this.#offset + this.size - chunk_start)
+          );
+          controller.close();
+        } else {
+          controller.enqueue(start_chunk.subarray(this.#offset - chunk_start));
+          cursor = start_chunk.byteLength - this.#offset + chunk_start;
+        }
+      },
+      pull: async (controller) => {
+        chunk_index++;
+        let chunk = await this.#get_chunk(chunk_index);
+        if (!chunk) {
+          controller.error("incomplete file data");
+          controller.close();
+          return;
+        }
+        if (chunk.byteLength > this.size - cursor) {
+          chunk = chunk.subarray(0, this.size - cursor);
+        }
+        controller.enqueue(chunk);
+        cursor += chunk.byteLength;
+        if (cursor >= this.size) {
+          controller.close();
+        }
+      }
+    });
+  }
+  async text() {
+    return text_decoder.decode(await this.arrayBuffer());
+  }
+}
+const path_regex = /^[a-zA-Z_$]\w*(\.[a-zA-Z_$]\w*|\[\d+\])*$/;
+function split_path(path) {
+  if (!path_regex.test(path)) {
+    throw new Error(`Invalid path ${path}`);
+  }
+  return path.split(/\.|\[|\]/).filter(Boolean);
+}
+function check_prototype_pollution(key) {
+  if (key === "__proto__" || key === "constructor" || key === "prototype") {
+    throw new Error(
+      `Invalid key "${key}"`
+    );
+  }
+}
+function deep_set(object, keys, value) {
+  let current = object;
+  for (let i = 0; i < keys.length - 1; i += 1) {
+    const key = keys[i];
+    check_prototype_pollution(key);
+    const is_array = /^\d+$/.test(keys[i + 1]);
+    const exists = Object.hasOwn(current, key);
+    const inner = current[key];
+    if (exists && is_array !== Array.isArray(inner)) {
+      throw new Error(`Invalid array key ${keys[i + 1]}`);
+    }
+    if (!exists) {
+      current[key] = is_array ? [] : {};
+    }
+    current = current[key];
+  }
+  const final_key = keys[keys.length - 1];
+  check_prototype_pollution(final_key);
+  current[final_key] = value;
+}
+function normalize_issue(issue, server = false) {
+  const normalized = { name: "", path: [], message: issue.message, server };
+  if (issue.path !== void 0) {
+    let name = "";
+    for (const segment of issue.path) {
+      const key = (
+        /** @type {string | number} */
+        typeof segment === "object" ? segment.key : segment
+      );
+      normalized.path.push(key);
+      if (typeof key === "number") {
+        name += `[${key}]`;
+      } else if (typeof key === "string") {
+        name += name === "" ? key : "." + key;
+      }
+    }
+    normalized.name = name;
+  }
+  return normalized;
+}
+function flatten_issues(issues) {
+  const result = {};
+  for (const issue of issues) {
+    (result.$ ??= []).push(issue);
+    let name = "";
+    if (issue.path !== void 0) {
+      for (const key of issue.path) {
+        if (typeof key === "number") {
+          name += `[${key}]`;
+        } else if (typeof key === "string") {
+          name += name === "" ? key : "." + key;
+        }
+        (result[name] ??= []).push(issue);
+      }
+    }
+  }
+  return result;
+}
+function deep_get(object, path) {
+  let current = object;
+  for (const key of path) {
+    if (current == null || typeof current !== "object") {
+      return current;
+    }
+    current = current[key];
+  }
+  return current;
+}
+function create_field_proxy(target, get_input, set_input, get_issues, path = []) {
+  const get_value = () => {
+    return deep_get(get_input(), path);
+  };
+  return new Proxy(target, {
+    get(target2, prop) {
+      if (typeof prop === "symbol") return target2[prop];
+      if (/^\d+$/.test(prop)) {
+        return create_field_proxy({}, get_input, set_input, get_issues, [
+          ...path,
+          parseInt(prop, 10)
+        ]);
+      }
+      const key = build_path_string(path);
+      if (prop === "set") {
+        const set_func = function(newValue) {
+          set_input(path, newValue);
+          return newValue;
+        };
+        return create_field_proxy(set_func, get_input, set_input, get_issues, [...path, prop]);
+      }
+      if (prop === "value") {
+        return create_field_proxy(get_value, get_input, set_input, get_issues, [...path, prop]);
+      }
+      if (prop === "issues" || prop === "allIssues") {
+        const issues_func = () => {
+          const all_issues = get_issues()[key === "" ? "$" : key];
+          if (prop === "allIssues") {
+            return all_issues?.map((issue) => ({
+              path: issue.path,
+              message: issue.message
+            }));
+          }
+          return all_issues?.filter((issue) => issue.name === key)?.map((issue) => ({
+            path: issue.path,
+            message: issue.message
+          }));
+        };
+        return create_field_proxy(issues_func, get_input, set_input, get_issues, [...path, prop]);
+      }
+      if (prop === "as") {
+        const as_func = (type, input_value) => {
+          const is_array = type === "file multiple" || type === "select multiple" || type === "checkbox" && typeof input_value === "string";
+          const prefix = type === "number" || type === "range" ? "n:" : type === "checkbox" && !is_array ? "b:" : "";
+          const base_props = {
+            name: prefix + key + (is_array ? "[]" : ""),
+            get "aria-invalid"() {
+              const issues = get_issues();
+              return key in issues ? "true" : void 0;
+            }
+          };
+          if (type !== "text" && type !== "select" && type !== "select multiple") {
+            base_props.type = type === "file multiple" ? "file" : type;
+          }
+          if (type === "submit" || type === "hidden") {
+            return Object.defineProperties(base_props, {
+              value: { value: input_value, enumerable: true }
+            });
+          }
+          if (type === "select" || type === "select multiple") {
+            return Object.defineProperties(base_props, {
+              multiple: { value: is_array, enumerable: true },
+              value: {
+                enumerable: true,
+                get() {
+                  return get_value();
+                }
+              }
+            });
+          }
+          if (type === "checkbox" || type === "radio") {
+            return Object.defineProperties(base_props, {
+              value: { value: input_value ?? "on", enumerable: true },
+              checked: {
+                enumerable: true,
+                get() {
+                  const value = get_value();
+                  if (type === "radio") {
+                    return value === input_value;
+                  }
+                  if (is_array) {
+                    return (value ?? []).includes(input_value);
+                  }
+                  return value;
+                }
+              }
+            });
+          }
+          if (type === "file" || type === "file multiple") {
+            return Object.defineProperties(base_props, {
+              multiple: { value: is_array, enumerable: true },
+              files: {
+                enumerable: true,
+                get() {
+                  const value = get_value();
+                  if (value instanceof File) {
+                    if (typeof DataTransfer !== "undefined") {
+                      const fileList = new DataTransfer();
+                      fileList.items.add(value);
+                      return fileList.files;
+                    }
+                    return { 0: value, length: 1 };
+                  }
+                  if (Array.isArray(value) && value.every((f) => f instanceof File)) {
+                    if (typeof DataTransfer !== "undefined") {
+                      const fileList = new DataTransfer();
+                      value.forEach((file) => fileList.items.add(file));
+                      return fileList.files;
+                    }
+                    const fileListLike = { length: value.length };
+                    value.forEach((file, index) => {
+                      fileListLike[index] = file;
+                    });
+                    return fileListLike;
+                  }
+                  return null;
+                }
+              }
+            });
+          }
+          return Object.defineProperties(base_props, {
+            value: {
+              enumerable: true,
+              get() {
+                const value = get_value();
+                return value != null ? String(value) : "";
+              }
+            }
+          });
+        };
+        return create_field_proxy(as_func, get_input, set_input, get_issues, [...path, "as"]);
+      }
+      return create_field_proxy({}, get_input, set_input, get_issues, [...path, prop]);
+    }
+  });
+}
+function build_path_string(path) {
+  let result = "";
+  for (const segment of path) {
+    if (typeof segment === "number") {
+      result += `[${segment}]`;
+    } else {
+      result += result === "" ? segment : "." + segment;
+    }
+  }
+  return result;
+}
 const INVALIDATED_PARAM = "x-sveltekit-invalidated";
 const TRAILING_SLASH_PARAM = "x-sveltekit-trailing-slash";
 function stringify(data, transport) {
@@ -450,24 +938,23 @@ function parse_remote_arg(string, transport) {
   const decoders = Object.fromEntries(Object.entries(transport).map(([k, v]) => [k, v.decode]));
   return parse(json_string, decoders);
 }
-function create_remote_cache_key(id, payload) {
+function create_remote_key(id, payload) {
   return id + "/" + payload;
 }
 export {
-  DevalueError as D,
+  BINARY_FORM_CONTENT_TYPE as B,
   INVALIDATED_PARAM as I,
   TRAILING_SLASH_PARAM as T,
-  is_plain_object as a,
-  stringify_string as b,
-  escaped as c,
-  stringify$1 as d,
-  enumerable_symbols as e,
-  stringify as f,
-  get_type as g,
-  parse_remote_arg as h,
-  is_primitive as i,
-  create_remote_cache_key as j,
-  stringify_remote_arg as k,
-  parse as p,
-  stringify_key as s
+  stringify as a,
+  stringify_remote_arg as b,
+  create_remote_key as c,
+  deserialize_binary_form as d,
+  parse as e,
+  flatten_issues as f,
+  create_field_proxy as g,
+  set_nested_value as h,
+  deep_set as i,
+  normalize_issue as n,
+  parse_remote_arg as p,
+  stringify$1 as s
 };

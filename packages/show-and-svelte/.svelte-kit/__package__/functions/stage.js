@@ -89,10 +89,17 @@ export function createSnippetMap(children) {
                     setupTransitionEvents(mark, element);
                     swapClass(element, mark);
                     element.removeAttribute("id");
+                    let display = "";
+                    if (element instanceof HTMLElement) {
+                        display = element.style.display;
+                        element.style.display = "contents";
+                    }
                     container.appendChild(element);
                     return () => {
                         swapClass(mark, element);
                         element.id = mark.id;
+                        if (element instanceof HTMLElement)
+                            element.style.display = display;
                     };
                 }
             })));

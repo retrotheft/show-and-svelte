@@ -11,6 +11,7 @@ div#stage {
    place-items: center;
    font-size: 1cqmin;
    user-select: none;
+   border: 1px solid grey;
 }
 
 [data-mark] {

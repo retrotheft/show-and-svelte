@@ -1,0 +1,45 @@
+body {
+   background-color: black;
+   display: grid;
+   height: 100vh;
+   font-family: "Quicksand";
+   font-weight: 700;
+   margin: 0;
+   padding: 0;
+   overflow: hidden;
+   place-items: center;
+}
+
+#app {
+   position: relative;
+}
+
+iframe {
+   border: none;
+}
+
+
+.console {
+   font-size: 2rem;
+   background-color: #111;
+   border: 2px solid grey;
+   border-radius: 1em;
+   position: relative;
+   padding: 2em 1em 1em 1em;
+   color: var(--color, white);
+   font-family: monospace;
+   white-space: pre-wrap;
+   line-height: 1.5;
+   height: 100%;
+}
+
+.console:before {
+   content: "console";
+   position: absolute;
+   color: white;
+   font-size: 0.5em;
+   top: 1em;
+   left: 1em;
+   color: grey;
+   font-family: monospace;
+}

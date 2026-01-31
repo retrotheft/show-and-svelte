@@ -1,12 +1,23 @@
-import { B as BROWSER } from "./chunks/false.js";
+import { B as BROWSER, a as assets, b as base, c as app_dir, r as relative, o as override, d as reset } from "./chunks/environment.js";
 import { json, text, error } from "@sveltejs/kit";
 import { HttpError, SvelteKitError, Redirect, ActionFailure } from "@sveltejs/kit/internal";
-import { with_request_store, merge_tracing } from "@sveltejs/kit/internal/server";
-import { a as assets, b as base, c as app_dir, o as override, r as reset } from "./chunks/environment.js";
-import { i as is_primitive, g as get_type, D as DevalueError, a as is_plain_object, e as enumerable_symbols, s as stringify_key, b as stringify_string, c as escaped, d as stringify, p as parse, f as stringify$1, h as parse_remote_arg, T as TRAILING_SLASH_PARAM, I as INVALIDATED_PARAM } from "./chunks/shared.js";
-import { m as make_trackable, d as disable_search, a as decode_params, r as readable, w as writable, v as validate_layout_server_exports, b as validate_layout_exports, c as validate_page_server_exports, e as validate_page_exports, n as normalize_path, f as resolve, g as decode_pathname, h as validate_server_exports } from "./chunks/exports.js";
+import { with_request_store, merge_tracing, try_get_request_store } from "@sveltejs/kit/internal/server";
+import { B as BINARY_FORM_CONTENT_TYPE, s as stringify, c as create_remote_key, p as parse_remote_arg, a as stringify$1, d as deserialize_binary_form, T as TRAILING_SLASH_PARAM, I as INVALIDATED_PARAM } from "./chunks/shared.js";
+import { u as uneval } from "./chunks/index.js";
+import { m as make_trackable, d as disable_search, a as decode_params, S as SCHEME, w as writable, r as readable, v as validate_layout_server_exports, b as validate_layout_exports, c as validate_page_server_exports, e as validate_page_exports, n as normalize_path, f as resolve, g as decode_pathname, h as validate_server_exports } from "./chunks/exports.js";
 import { b as base64_encode, t as text_decoder, a as text_encoder, g as get_relative_path } from "./chunks/utils.js";
 import { p as public_env, r as read_implementation, o as options, s as set_private_env, a as set_public_env, g as get_hooks, b as set_read_implementation } from "./chunks/internal.js";
+function with_resolvers() {
+  let resolve2;
+  let reject;
+  const promise = new Promise((res, rej) => {
+    resolve2 = res;
+    reject = rej;
+  });
+  return { promise, resolve: resolve2, reject };
+}
+const NULL_BODY_STATUS = [101, 103, 204, 205, 304];
+const IN_WEBCONTAINER = !!globalThis.process?.versions?.webcontainer;
 const SVELTE_KIT_ASSETS = "/_svelte_kit_assets";
 const ENDPOINT_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"];
 const PAGE_METHODS = ["GET", "POST", "HEAD"];
@@ -54,7 +65,8 @@ function is_form_content_type(request) {
     request,
     "application/x-www-form-urlencoded",
     "multipart/form-data",
-    "text/plain"
+    "text/plain",
+    BINARY_FORM_CONTENT_TYPE
   );
 }
 function coalesce_to_error(err) {
@@ -122,8 +134,13 @@ function method_not_allowed(mod, method) {
 }
 function allowed_methods(mod) {
   const allowed = ENDPOINT_METHODS.filter((method) => method in mod);
-  if ("GET" in mod || "HEAD" in mod) allowed.push("HEAD");
+  if ("GET" in mod && !("HEAD" in mod)) {
+    allowed.push("HEAD");
+  }
   return allowed;
+}
+function get_global_name(options2) {
+  return `__sveltekit_${options2.version_hash}`;
 }
 function static_error_page(options2, status, message) {
   let page = options2.templates.error({ status, message: escape_html(message) });
@@ -232,6 +249,7 @@ async function render_endpoint(event, event_state, mod, state) {
       return new Response(void 0, { status: 204 });
     }
   }
+  event_state.is_endpoint_request = true;
   try {
     const response = await with_request_store(
       { event, state: event_state },
@@ -316,254 +334,6 @@ function add_resolution_suffix(pathname) {
 function strip_resolution_suffix(pathname) {
   return pathname.slice(0, -ROUTE_SUFFIX.length);
 }
-const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$";
-const unsafe_chars = /[<\b\f\n\r\t\0\u2028\u2029]/g;
-const reserved = /^(?:do|if|in|for|int|let|new|try|var|byte|case|char|else|enum|goto|long|this|void|with|await|break|catch|class|const|final|float|short|super|throw|while|yield|delete|double|export|import|native|return|switch|throws|typeof|boolean|default|extends|finally|package|private|abstract|continue|debugger|function|volatile|interface|protected|transient|implements|instanceof|synchronized)$/;
-function uneval(value, replacer) {
-  const counts = /* @__PURE__ */ new Map();
-  const keys = [];
-  const custom = /* @__PURE__ */ new Map();
-  function walk(thing) {
-    if (typeof thing === "function") {
-      throw new DevalueError(`Cannot stringify a function`, keys);
-    }
-    if (!is_primitive(thing)) {
-      if (counts.has(thing)) {
-        counts.set(thing, counts.get(thing) + 1);
-        return;
-      }
-      counts.set(thing, 1);
-      if (replacer) {
-        const str2 = replacer(thing);
-        if (typeof str2 === "string") {
-          custom.set(thing, str2);
-          return;
-        }
-      }
-      const type = get_type(thing);
-      switch (type) {
-        case "Number":
-        case "BigInt":
-        case "String":
-        case "Boolean":
-        case "Date":
-        case "RegExp":
-          return;
-        case "Array":
-          thing.forEach((value2, i) => {
-            keys.push(`[${i}]`);
-            walk(value2);
-            keys.pop();
-          });
-          break;
-        case "Set":
-          Array.from(thing).forEach(walk);
-          break;
-        case "Map":
-          for (const [key2, value2] of thing) {
-            keys.push(
-              `.get(${is_primitive(key2) ? stringify_primitive(key2) : "..."})`
-            );
-            walk(value2);
-            keys.pop();
-          }
-          break;
-        case "Int8Array":
-        case "Uint8Array":
-        case "Uint8ClampedArray":
-        case "Int16Array":
-        case "Uint16Array":
-        case "Int32Array":
-        case "Uint32Array":
-        case "Float32Array":
-        case "Float64Array":
-        case "BigInt64Array":
-        case "BigUint64Array":
-          return;
-        case "ArrayBuffer":
-          return;
-        default:
-          if (!is_plain_object(thing)) {
-            throw new DevalueError(
-              `Cannot stringify arbitrary non-POJOs`,
-              keys
-            );
-          }
-          if (enumerable_symbols(thing).length > 0) {
-            throw new DevalueError(
-              `Cannot stringify POJOs with symbolic keys`,
-              keys
-            );
-          }
-          for (const key2 in thing) {
-            keys.push(stringify_key(key2));
-            walk(thing[key2]);
-            keys.pop();
-          }
-      }
-    }
-  }
-  walk(value);
-  const names = /* @__PURE__ */ new Map();
-  Array.from(counts).filter((entry) => entry[1] > 1).sort((a, b) => b[1] - a[1]).forEach((entry, i) => {
-    names.set(entry[0], get_name(i));
-  });
-  function stringify2(thing) {
-    if (names.has(thing)) {
-      return names.get(thing);
-    }
-    if (is_primitive(thing)) {
-      return stringify_primitive(thing);
-    }
-    if (custom.has(thing)) {
-      return custom.get(thing);
-    }
-    const type = get_type(thing);
-    switch (type) {
-      case "Number":
-      case "String":
-      case "Boolean":
-        return `Object(${stringify2(thing.valueOf())})`;
-      case "RegExp":
-        return `new RegExp(${stringify_string(thing.source)}, "${thing.flags}")`;
-      case "Date":
-        return `new Date(${thing.getTime()})`;
-      case "Array":
-        const members = (
-          /** @type {any[]} */
-          thing.map(
-            (v, i) => i in thing ? stringify2(v) : ""
-          )
-        );
-        const tail = thing.length === 0 || thing.length - 1 in thing ? "" : ",";
-        return `[${members.join(",")}${tail}]`;
-      case "Set":
-      case "Map":
-        return `new ${type}([${Array.from(thing).map(stringify2).join(",")}])`;
-      case "Int8Array":
-      case "Uint8Array":
-      case "Uint8ClampedArray":
-      case "Int16Array":
-      case "Uint16Array":
-      case "Int32Array":
-      case "Uint32Array":
-      case "Float32Array":
-      case "Float64Array":
-      case "BigInt64Array":
-      case "BigUint64Array": {
-        const typedArray = thing;
-        return `new ${type}([${typedArray.toString()}])`;
-      }
-      case "ArrayBuffer": {
-        const ui8 = new Uint8Array(thing);
-        return `new Uint8Array([${ui8.toString()}]).buffer`;
-      }
-      default:
-        const obj = `{${Object.keys(thing).map((key2) => `${safe_key(key2)}:${stringify2(thing[key2])}`).join(",")}}`;
-        const proto = Object.getPrototypeOf(thing);
-        if (proto === null) {
-          return Object.keys(thing).length > 0 ? `Object.assign(Object.create(null),${obj})` : `Object.create(null)`;
-        }
-        return obj;
-    }
-  }
-  const str = stringify2(value);
-  if (names.size) {
-    const params = [];
-    const statements = [];
-    const values = [];
-    names.forEach((name, thing) => {
-      params.push(name);
-      if (custom.has(thing)) {
-        values.push(
-          /** @type {string} */
-          custom.get(thing)
-        );
-        return;
-      }
-      if (is_primitive(thing)) {
-        values.push(stringify_primitive(thing));
-        return;
-      }
-      const type = get_type(thing);
-      switch (type) {
-        case "Number":
-        case "String":
-        case "Boolean":
-          values.push(`Object(${stringify2(thing.valueOf())})`);
-          break;
-        case "RegExp":
-          values.push(thing.toString());
-          break;
-        case "Date":
-          values.push(`new Date(${thing.getTime()})`);
-          break;
-        case "Array":
-          values.push(`Array(${thing.length})`);
-          thing.forEach((v, i) => {
-            statements.push(`${name}[${i}]=${stringify2(v)}`);
-          });
-          break;
-        case "Set":
-          values.push(`new Set`);
-          statements.push(
-            `${name}.${Array.from(thing).map((v) => `add(${stringify2(v)})`).join(".")}`
-          );
-          break;
-        case "Map":
-          values.push(`new Map`);
-          statements.push(
-            `${name}.${Array.from(thing).map(([k, v]) => `set(${stringify2(k)}, ${stringify2(v)})`).join(".")}`
-          );
-          break;
-        default:
-          values.push(
-            Object.getPrototypeOf(thing) === null ? "Object.create(null)" : "{}"
-          );
-          Object.keys(thing).forEach((key2) => {
-            statements.push(
-              `${name}${safe_prop(key2)}=${stringify2(thing[key2])}`
-            );
-          });
-      }
-    });
-    statements.push(`return ${str}`);
-    return `(function(${params.join(",")}){${statements.join(
-      ";"
-    )}}(${values.join(",")}))`;
-  } else {
-    return str;
-  }
-}
-function get_name(num) {
-  let name = "";
-  do {
-    name = chars[num % chars.length] + name;
-    num = ~~(num / chars.length) - 1;
-  } while (num >= 0);
-  return reserved.test(name) ? `${name}0` : name;
-}
-function escape_unsafe_char(c) {
-  return escaped[c] || c;
-}
-function escape_unsafe_chars(str) {
-  return str.replace(unsafe_chars, escape_unsafe_char);
-}
-function safe_key(key2) {
-  return /^[_$a-zA-Z][_$a-zA-Z0-9]*$/.test(key2) ? key2 : escape_unsafe_chars(JSON.stringify(key2));
-}
-function safe_prop(key2) {
-  return /^[_$a-zA-Z][_$a-zA-Z0-9]*$/.test(key2) ? `.${key2}` : `[${escape_unsafe_chars(JSON.stringify(key2))}]`;
-}
-function stringify_primitive(thing) {
-  if (typeof thing === "string") return stringify_string(thing);
-  if (thing === void 0) return "void 0";
-  if (thing === 0 && 1 / thing < 0) return "-0";
-  const str = String(thing);
-  if (typeof thing === "number") return str.replace(/^(-)?0\./, "$1.");
-  if (typeof thing === "bigint") return thing + "n";
-  return str;
-}
 const noop_span = {
   spanContext() {
     return noop_span_context;
@@ -642,7 +412,7 @@ async function handle_action_json_request(event, event_state, options2, server) 
   check_named_default_separate(actions);
   try {
     const data = await call_action(event, event_state, actions);
-    if (false) ;
+    if (BROWSER) ;
     if (data instanceof ActionFailure) {
       return action_json({
         type: "failure",
@@ -727,7 +497,7 @@ async function handle_action_request(event, event_state, server) {
   check_named_default_separate(actions);
   try {
     const data = await call_action(event, event_state, actions);
-    if (false) ;
+    if (BROWSER) ;
     if (data instanceof ActionFailure) {
       return {
         type: "failure",
@@ -794,14 +564,14 @@ async function call_action(event, event_state, actions) {
     attributes: {
       "http.route": event.route.id || "unknown"
     },
-    fn: async (current) => {
-      const traced_event = merge_tracing(event, current);
+    fn: async (current2) => {
+      const traced_event = merge_tracing(event, current2);
       const result = await with_request_store(
         { event: traced_event, state: event_state },
         () => action(traced_event)
       );
       if (result instanceof ActionFailure) {
-        current.setAttributes({
+        current2.setAttributes({
           "sveltekit.form_action.result.type": "failure",
           "sveltekit.form_action.result.status": result.status
         });
@@ -856,7 +626,214 @@ function try_serialize(data, fn, route_id) {
     throw error2;
   }
 }
-const NULL_BODY_STATUS = [101, 103, 204, 205, 304];
+function create_async_iterator() {
+  let resolved = -1;
+  let returned = -1;
+  const deferred = [];
+  return {
+    iterate: (transform = (x) => x) => {
+      return {
+        [Symbol.asyncIterator]() {
+          return {
+            next: async () => {
+              const next = deferred[++returned];
+              if (!next) return { value: null, done: true };
+              const value = await next.promise;
+              return { value: transform(value), done: false };
+            }
+          };
+        }
+      };
+    },
+    add: (promise) => {
+      deferred.push(with_resolvers());
+      void promise.then((value) => {
+        deferred[++resolved].resolve(value);
+      });
+    }
+  };
+}
+function server_data_serializer(event, event_state, options2) {
+  let promise_id = 1;
+  let max_nodes = -1;
+  const iterator = create_async_iterator();
+  const global = get_global_name(options2);
+  function get_replacer(index) {
+    return function replacer(thing) {
+      if (typeof thing?.then === "function") {
+        const id = promise_id++;
+        const promise = thing.then(
+          /** @param {any} data */
+          (data) => ({ data })
+        ).catch(
+          /** @param {any} error */
+          async (error2) => ({
+            error: await handle_error_and_jsonify(event, event_state, options2, error2)
+          })
+        ).then(
+          /**
+           * @param {{data: any; error: any}} result
+           */
+          async ({ data, error: error2 }) => {
+            let str;
+            try {
+              str = uneval(error2 ? [, error2] : [data], replacer);
+            } catch {
+              error2 = await handle_error_and_jsonify(
+                event,
+                event_state,
+                options2,
+                new Error(`Failed to serialize promise while rendering ${event.route.id}`)
+              );
+              data = void 0;
+              str = uneval([, error2], replacer);
+            }
+            return {
+              index,
+              str: `${global}.resolve(${id}, ${str.includes("app.decode") ? `(app) => ${str}` : `() => ${str}`})`
+            };
+          }
+        );
+        iterator.add(promise);
+        return `${global}.defer(${id})`;
+      } else {
+        for (const key2 in options2.hooks.transport) {
+          const encoded = options2.hooks.transport[key2].encode(thing);
+          if (encoded) {
+            return `app.decode('${key2}', ${uneval(encoded, replacer)})`;
+          }
+        }
+      }
+    };
+  }
+  const strings = (
+    /** @type {string[]} */
+    []
+  );
+  return {
+    set_max_nodes(i) {
+      max_nodes = i;
+    },
+    add_node(i, node) {
+      try {
+        if (!node) {
+          strings[i] = "null";
+          return;
+        }
+        const payload = { type: "data", data: node.data, uses: serialize_uses(node) };
+        if (node.slash) payload.slash = node.slash;
+        strings[i] = uneval(payload, get_replacer(i));
+      } catch (e) {
+        e.path = e.path.slice(1);
+        throw new Error(clarify_devalue_error(
+          event,
+          /** @type {any} */
+          e
+        ));
+      }
+    },
+    get_data(csp) {
+      const open = `<script${csp.script_needs_nonce ? ` nonce="${csp.nonce}"` : ""}>`;
+      const close = `<\/script>
+`;
+      return {
+        data: `[${compact(max_nodes > -1 ? strings.slice(0, max_nodes) : strings).join(",")}]`,
+        chunks: promise_id > 1 ? iterator.iterate(({ index, str }) => {
+          if (max_nodes > -1 && index >= max_nodes) {
+            return "";
+          }
+          return open + str + close;
+        }) : null
+      };
+    }
+  };
+}
+function server_data_serializer_json(event, event_state, options2) {
+  let promise_id = 1;
+  const iterator = create_async_iterator();
+  const reducers = {
+    ...Object.fromEntries(
+      Object.entries(options2.hooks.transport).map(([key2, value]) => [key2, value.encode])
+    ),
+    /** @param {any} thing */
+    Promise: (thing) => {
+      if (typeof thing?.then !== "function") {
+        return;
+      }
+      const id = promise_id++;
+      let key2 = "data";
+      const promise = thing.catch(
+        /** @param {any} e */
+        async (e) => {
+          key2 = "error";
+          return handle_error_and_jsonify(
+            event,
+            event_state,
+            options2,
+            /** @type {any} */
+            e
+          );
+        }
+      ).then(
+        /** @param {any} value */
+        async (value) => {
+          let str;
+          try {
+            str = stringify(value, reducers);
+          } catch {
+            const error2 = await handle_error_and_jsonify(
+              event,
+              event_state,
+              options2,
+              new Error(`Failed to serialize promise while rendering ${event.route.id}`)
+            );
+            key2 = "error";
+            str = stringify(error2, reducers);
+          }
+          return `{"type":"chunk","id":${id},"${key2}":${str}}
+`;
+        }
+      );
+      iterator.add(promise);
+      return id;
+    }
+  };
+  const strings = (
+    /** @type {string[]} */
+    []
+  );
+  return {
+    add_node(i, node) {
+      try {
+        if (!node) {
+          strings[i] = "null";
+          return;
+        }
+        if (node.type === "error" || node.type === "skip") {
+          strings[i] = JSON.stringify(node);
+          return;
+        }
+        strings[i] = `{"type":"data","data":${stringify(node.data, reducers)},"uses":${JSON.stringify(
+          serialize_uses(node)
+        )}${node.slash ? `,"slash":${JSON.stringify(node.slash)}` : ""}}`;
+      } catch (e) {
+        e.path = "data" + e.path;
+        throw new Error(clarify_devalue_error(
+          event,
+          /** @type {any} */
+          e
+        ));
+      }
+    },
+    get_data() {
+      return {
+        data: `{"type":"data","nodes":[${strings.join(",")}]}
+`,
+        chunks: promise_id > 1 ? iterator.iterate() : null
+      };
+    }
+  };
+}
 async function load_server_data({ event, event_state, state, node, parent }) {
   if (!node?.server) return null;
   let is_tracking = true;
@@ -896,8 +873,8 @@ async function load_server_data({ event, event_state, state, node, parent }) {
       "sveltekit.load.node_type": get_node_type(node.server_id),
       "http.route": event.route.id || "unknown"
     },
-    fn: async (current) => {
-      const traced_event = merge_tracing(event, current);
+    fn: async (current2) => {
+      const traced_event = merge_tracing(event, current2);
       const result2 = await with_request_store(
         { event: traced_event, state: event_state },
         () => load.call(null, {
@@ -985,34 +962,14 @@ async function load_data({
       "sveltekit.load.node_type": get_node_type(node.universal_id),
       "http.route": event.route.id || "unknown"
     },
-    fn: async (current) => {
-      const traced_event = merge_tracing(event, current);
-      return await with_request_store({ event: traced_event, state: event_state }, () => {
-        let data = null;
-        return load.call(null, {
+    fn: async (current2) => {
+      const traced_event = merge_tracing(event, current2);
+      return await with_request_store(
+        { event: traced_event, state: event_state },
+        () => load.call(null, {
           url: event.url,
           params: event.params,
-          get data() {
-            if (data === null && server_data_node?.data != null) {
-              const reducers = {};
-              const revivers = {};
-              for (const key2 in event_state.transport) {
-                reducers[key2] = event_state.transport[key2].encode;
-                revivers[key2] = event_state.transport[key2].decode;
-              }
-              try {
-                data = parse(stringify(server_data_node.data, reducers), revivers);
-              } catch (e) {
-                e.path = e.path.slice(1);
-                throw new Error(clarify_devalue_error(
-                  event,
-                  /** @type {any} */
-                  e
-                ));
-              }
-            }
-            return data;
-          },
+          data: server_data_node?.data ?? null,
           route: event.route,
           fetch: create_universal_fetch(event, state, fetched, csr, resolve_opts),
           setHeaders: event.setHeaders,
@@ -1021,8 +978,8 @@ async function load_data({
           parent,
           untrack: (fn) => fn(),
           tracing: traced_event.tracing
-        });
-      });
+        })
+      );
     }
   });
   return result ?? null;
@@ -1059,7 +1016,7 @@ function create_universal_fetch(event, state, fetched, csr, resolve_opts) {
     }
     let teed_body;
     const proxy = new Proxy(response, {
-      get(response2, key2, _receiver) {
+      get(response2, key2, receiver) {
         async function push_fetched(body2, is_b64) {
           const status_number = Number(response2.status);
           if (isNaN(status_number)) {
@@ -1139,7 +1096,22 @@ function create_universal_fetch(event, state, fetched, csr, resolve_opts) {
             return body2 ? JSON.parse(body2) : void 0;
           };
         }
-        return Reflect.get(response2, key2, response2);
+        const value = Reflect.get(response2, key2, response2);
+        if (value instanceof Function) {
+          return Object.defineProperties(
+            /**
+             * @this {any}
+             */
+            function() {
+              return Reflect.apply(value, this === receiver ? response2 : this, arguments);
+            },
+            {
+              name: { value: value.name },
+              length: { value: value.length }
+            }
+          );
+        }
+        return value;
       }
     });
     if (csr) {
@@ -1578,41 +1550,6 @@ class Csp {
     this.report_only_provider.add_style(content);
   }
 }
-function defer() {
-  let fulfil;
-  let reject;
-  const promise = new Promise((f, r) => {
-    fulfil = f;
-    reject = r;
-  });
-  return { promise, fulfil, reject };
-}
-function create_async_iterator() {
-  const deferred = [defer()];
-  return {
-    iterator: {
-      [Symbol.asyncIterator]() {
-        return {
-          next: async () => {
-            const next = await deferred[0].promise;
-            if (!next.done) deferred.shift();
-            return next;
-          }
-        };
-      }
-    },
-    push: (value) => {
-      deferred[deferred.length - 1].fulfil({
-        value,
-        done: false
-      });
-      deferred.push(defer());
-    },
-    done: () => {
-      deferred[deferred.length - 1].fulfil({ done: true });
-    }
-  };
-}
 function exec(match, params, matchers) {
   const result = {};
   const values = match.slice(1);
@@ -1742,7 +1679,8 @@ async function render_response({
   event,
   event_state,
   resolve_opts,
-  action_result
+  action_result,
+  data_serializer
 }) {
   if (state.prerendering) {
     if (options2.csp.mode === "nonce") {
@@ -1811,7 +1749,6 @@ async function render_response({
       form: form_value,
       state: {}
     };
-    override({ base: base$1, assets: assets$1 });
     const render_opts = {
       context: /* @__PURE__ */ new Map([
         [
@@ -1822,15 +1759,24 @@ async function render_response({
         ]
       ])
     };
-    {
-      try {
-        rendered = with_request_store(
-          { event, state: event_state },
-          () => options2.root.render(props, render_opts)
-        );
-      } finally {
-        reset();
-      }
+    const fetch2 = globalThis.fetch;
+    try {
+      if (BROWSER) ;
+      rendered = await with_request_store({ event, state: event_state }, async () => {
+        if (relative) override({ base: base$1, assets: assets$1 });
+        const maybe_promise = options2.root.render(props, render_opts);
+        const rendered2 = options2.async && "then" in maybe_promise ? (
+          /** @type {ReturnType<typeof options.root.render> & Promise<any>} */
+          maybe_promise.then((r) => r)
+        ) : maybe_promise;
+        if (options2.async) {
+          reset();
+        }
+        const { head: head2, html: html2, css } = options2.async ? await rendered2 : rendered2;
+        return { head: head2, html: html2, css };
+      });
+    } finally {
+      reset();
     }
     for (const { node } of branch) {
       for (const url of node.imports) modulepreloads.add(url);
@@ -1885,15 +1831,8 @@ async function render_response({
       );
     }
   }
-  const global = `__sveltekit_${options2.version_hash}`;
-  const { data, chunks } = get_data(
-    event,
-    event_state,
-    options2,
-    branch.map((b) => b.server_data),
-    csp,
-    global
-  );
+  const global = get_global_name(options2);
+  const { data, chunks } = data_serializer.get_data(csp);
   if (page_config.ssr && page_config.csr) {
     body2 += `
 			${fetched.map(
@@ -1972,22 +1911,6 @@ async function render_response({
 							try_to_resolve();
 						}`);
     }
-    const { remote_data } = event_state;
-    if (remote_data) {
-      const remote = {};
-      for (const key2 in remote_data) {
-        remote[key2] = await remote_data[key2];
-      }
-      const replacer = (thing) => {
-        for (const key2 in options2.hooks.transport) {
-          const encoded = options2.hooks.transport[key2].encode(thing);
-          if (encoded) {
-            return `app.decode('${key2}', ${uneval(encoded, replacer)})`;
-          }
-        }
-      };
-      properties.push(`data: ${uneval(remote, replacer)}`);
-    }
     blocks.push(`${global} = {
 						${properties.join(",\n						")}
 					};`);
@@ -2032,15 +1955,37 @@ ${indent}	${hydrate.join(`,
 ${indent}	`)}
 ${indent}}`);
     }
+    const { remote_data: remote_cache } = event_state;
+    let serialized_remote_data = "";
+    if (remote_cache) {
+      const remote = {};
+      for (const [info, cache] of remote_cache) {
+        if (!info.id) continue;
+        for (const key2 in cache) {
+          remote[create_remote_key(info.id, key2)] = await cache[key2];
+        }
+      }
+      const replacer = (thing) => {
+        for (const key2 in options2.hooks.transport) {
+          const encoded = options2.hooks.transport[key2].encode(thing);
+          if (encoded) {
+            return `app.decode('${key2}', ${uneval(encoded, replacer)})`;
+          }
+        }
+      };
+      serialized_remote_data = `${global}.data = ${uneval(remote, replacer)};
+
+						`;
+    }
     const boot = client.inline ? `${client.inline.script}
 
-					__sveltekit_${options2.version_hash}.app.start(${args.join(", ")});` : client.app ? `Promise.all([
+					${serialized_remote_data}${global}.app.start(${args.join(", ")});` : client.app ? `Promise.all([
 						import(${s(prefixed(client.start))}),
 						import(${s(prefixed(client.app))})
 					]).then(([kit, app]) => {
-						kit.start(app, ${args.join(", ")});
+						${serialized_remote_data}kit.start(app, ${args.join(", ")});
 					});` : `import(${s(prefixed(client.start))}).then((app) => {
-						app.start(${args.join(", ")})
+						${serialized_remote_data}app.start(${args.join(", ")})
 					});`;
     if (load_env_eagerly) {
       blocks.push(`import(${s(`${base$1}/${app_dir}/env.js`)}).then(({ env }) => {
@@ -2128,7 +2073,7 @@ ${indent}}`);
       async start(controller) {
         controller.enqueue(text_encoder.encode(transformed + "\n"));
         for await (const chunk of chunks) {
-          controller.enqueue(text_encoder.encode(chunk));
+          if (chunk.length) controller.enqueue(text_encoder.encode(chunk));
         }
         controller.close();
       },
@@ -2138,79 +2083,6 @@ ${indent}}`);
       headers: headers2
     }
   );
-}
-function get_data(event, event_state, options2, nodes, csp, global) {
-  let promise_id = 1;
-  let count = 0;
-  const { iterator, push, done } = create_async_iterator();
-  function replacer(thing) {
-    if (typeof thing?.then === "function") {
-      const id = promise_id++;
-      count += 1;
-      thing.then(
-        /** @param {any} data */
-        (data) => ({ data })
-      ).catch(
-        /** @param {any} error */
-        async (error2) => ({
-          error: await handle_error_and_jsonify(event, event_state, options2, error2)
-        })
-      ).then(
-        /**
-         * @param {{data: any; error: any}} result
-         */
-        async ({ data, error: error2 }) => {
-          count -= 1;
-          let str;
-          try {
-            str = uneval(error2 ? [, error2] : [data], replacer);
-          } catch {
-            error2 = await handle_error_and_jsonify(
-              event,
-              event_state,
-              options2,
-              new Error(`Failed to serialize promise while rendering ${event.route.id}`)
-            );
-            data = void 0;
-            str = uneval([, error2], replacer);
-          }
-          const nonce = csp.script_needs_nonce ? ` nonce="${csp.nonce}"` : "";
-          push(
-            `<script${nonce}>${global}.resolve(${id}, ${str.includes("app.decode") ? `(app) => ${str}` : `() => ${str}`})<\/script>
-`
-          );
-          if (count === 0) done();
-        }
-      );
-      return `${global}.defer(${id})`;
-    } else {
-      for (const key2 in options2.hooks.transport) {
-        const encoded = options2.hooks.transport[key2].encode(thing);
-        if (encoded) {
-          return `app.decode('${key2}', ${uneval(encoded, replacer)})`;
-        }
-      }
-    }
-  }
-  try {
-    const strings = nodes.map((node) => {
-      if (!node) return "null";
-      const payload = { type: "data", data: node.data, uses: serialize_uses(node) };
-      if (node.slash) payload.slash = node.slash;
-      return uneval(payload, replacer);
-    });
-    return {
-      data: `[${strings.join(",")}]`,
-      chunks: count > 0 ? iterator : null
-    };
-  } catch (e) {
-    e.path = e.path.slice(1);
-    throw new Error(clarify_devalue_error(
-      event,
-      /** @type {any} */
-      e
-    ));
-  }
 }
 class PageNodes {
   data;
@@ -2282,17 +2154,17 @@ class PageNodes {
     return this.#get_option("trailingSlash") ?? "never";
   }
   get_config() {
-    let current = {};
+    let current2 = {};
     for (const node of this.data) {
       if (!node?.universal?.config && !node?.server?.config) continue;
-      current = {
-        ...current,
+      current2 = {
+        ...current2,
         // TODO: should we override the server config value with the universal value similar to other page options?
         ...node?.universal?.config,
         ...node?.server?.config
       };
     }
-    return Object.keys(current).length ? current : void 0;
+    return Object.keys(current2).length ? current2 : void 0;
   }
   should_prerender_data() {
     return this.data.some(
@@ -2326,6 +2198,7 @@ async function respond_with_error({
     const nodes = new PageNodes([default_layout]);
     const ssr = nodes.ssr();
     const csr = nodes.csr();
+    const data_serializer = server_data_serializer(event, event_state, options2);
     if (ssr) {
       state.error = true;
       const server_data_promise = load_server_data({
@@ -2337,6 +2210,7 @@ async function respond_with_error({
         parent: async () => ({})
       });
       const server_data = await server_data_promise;
+      data_serializer.add_node(0, server_data);
       const data = await load_data({
         event,
         event_state,
@@ -2377,7 +2251,8 @@ async function respond_with_error({
       fetched,
       event,
       event_state,
-      resolve_opts
+      resolve_opts,
+      data_serializer
     });
   } catch (e) {
     if (e instanceof Redirect) {
@@ -2390,228 +2265,12 @@ async function respond_with_error({
     );
   }
 }
-function once(fn) {
-  let done = false;
-  let result;
-  return () => {
-    if (done) return result;
-    done = true;
-    return result = fn();
-  };
-}
-async function render_data(event, event_state, route, options2, manifest, state, invalidated_data_nodes, trailing_slash) {
-  if (!route.page) {
-    return new Response(void 0, {
-      status: 404
-    });
-  }
-  try {
-    const node_ids = [...route.page.layouts, route.page.leaf];
-    const invalidated = invalidated_data_nodes ?? node_ids.map(() => true);
-    let aborted = false;
-    const url = new URL(event.url);
-    url.pathname = normalize_path(url.pathname, trailing_slash);
-    const new_event = { ...event, url };
-    const functions = node_ids.map((n, i) => {
-      return once(async () => {
-        try {
-          if (aborted) {
-            return (
-              /** @type {import('types').ServerDataSkippedNode} */
-              {
-                type: "skip"
-              }
-            );
-          }
-          const node = n == void 0 ? n : await manifest._.nodes[n]();
-          return load_server_data({
-            event: new_event,
-            event_state,
-            state,
-            node,
-            parent: async () => {
-              const data2 = {};
-              for (let j = 0; j < i; j += 1) {
-                const parent = (
-                  /** @type {import('types').ServerDataNode | null} */
-                  await functions[j]()
-                );
-                if (parent) {
-                  Object.assign(data2, parent.data);
-                }
-              }
-              return data2;
-            }
-          });
-        } catch (e) {
-          aborted = true;
-          throw e;
-        }
-      });
-    });
-    const promises = functions.map(async (fn, i) => {
-      if (!invalidated[i]) {
-        return (
-          /** @type {import('types').ServerDataSkippedNode} */
-          {
-            type: "skip"
-          }
-        );
-      }
-      return fn();
-    });
-    let length = promises.length;
-    const nodes = await Promise.all(
-      promises.map(
-        (p, i) => p.catch(async (error2) => {
-          if (error2 instanceof Redirect) {
-            throw error2;
-          }
-          length = Math.min(length, i + 1);
-          return (
-            /** @type {import('types').ServerErrorNode} */
-            {
-              type: "error",
-              error: await handle_error_and_jsonify(event, event_state, options2, error2),
-              status: error2 instanceof HttpError || error2 instanceof SvelteKitError ? error2.status : void 0
-            }
-          );
-        })
-      )
-    );
-    const { data, chunks } = get_data_json(event, event_state, options2, nodes);
-    if (!chunks) {
-      return json_response(data);
-    }
-    return new Response(
-      new ReadableStream({
-        async start(controller) {
-          controller.enqueue(text_encoder.encode(data));
-          for await (const chunk of chunks) {
-            controller.enqueue(text_encoder.encode(chunk));
-          }
-          controller.close();
-        },
-        type: "bytes"
-      }),
-      {
-        headers: {
-          // we use a proprietary content type to prevent buffering.
-          // the `text` prefix makes it inspectable
-          "content-type": "text/sveltekit-data",
-          "cache-control": "private, no-store"
-        }
-      }
-    );
-  } catch (e) {
-    const error2 = normalize_error(e);
-    if (error2 instanceof Redirect) {
-      return redirect_json_response(error2);
-    } else {
-      return json_response(await handle_error_and_jsonify(event, event_state, options2, error2), 500);
-    }
-  }
-}
-function json_response(json2, status = 200) {
-  return text(typeof json2 === "string" ? json2 : JSON.stringify(json2), {
-    status,
-    headers: {
-      "content-type": "application/json",
-      "cache-control": "private, no-store"
-    }
-  });
-}
-function redirect_json_response(redirect) {
-  return json_response(
-    /** @type {import('types').ServerRedirectNode} */
-    {
-      type: "redirect",
-      location: redirect.location
-    }
-  );
-}
-function get_data_json(event, event_state, options2, nodes) {
-  let promise_id = 1;
-  let count = 0;
-  const { iterator, push, done } = create_async_iterator();
-  const reducers = {
-    ...Object.fromEntries(
-      Object.entries(options2.hooks.transport).map(([key2, value]) => [key2, value.encode])
-    ),
-    /** @param {any} thing */
-    Promise: (thing) => {
-      if (typeof thing?.then === "function") {
-        const id = promise_id++;
-        count += 1;
-        let key2 = "data";
-        thing.catch(
-          /** @param {any} e */
-          async (e) => {
-            key2 = "error";
-            return handle_error_and_jsonify(
-              event,
-              event_state,
-              options2,
-              /** @type {any} */
-              e
-            );
-          }
-        ).then(
-          /** @param {any} value */
-          async (value) => {
-            let str;
-            try {
-              str = stringify(value, reducers);
-            } catch {
-              const error2 = await handle_error_and_jsonify(
-                event,
-                event_state,
-                options2,
-                new Error(`Failed to serialize promise while rendering ${event.route.id}`)
-              );
-              key2 = "error";
-              str = stringify(error2, reducers);
-            }
-            count -= 1;
-            push(`{"type":"chunk","id":${id},"${key2}":${str}}
-`);
-            if (count === 0) done();
-          }
-        );
-        return id;
-      }
-    }
-  };
-  try {
-    const strings = nodes.map((node) => {
-      if (!node) return "null";
-      if (node.type === "error" || node.type === "skip") {
-        return JSON.stringify(node);
-      }
-      return `{"type":"data","data":${stringify(node.data, reducers)},"uses":${JSON.stringify(
-        serialize_uses(node)
-      )}${node.slash ? `,"slash":${JSON.stringify(node.slash)}` : ""}}`;
-    });
-    return {
-      data: `{"type":"data","nodes":[${strings.join(",")}]}
-`,
-      chunks: count > 0 ? iterator : null
-    };
-  } catch (e) {
-    e.path = "data" + e.path;
-    throw new Error(clarify_devalue_error(
-      event,
-      /** @type {any} */
-      e
-    ));
-  }
-}
 async function handle_remote_call(event, state, options2, manifest, id) {
   return record_span({
     name: "sveltekit.remote.call",
     attributes: {},
-    fn: (current) => {
-      const traced_event = merge_tracing(event, current);
+    fn: (current2) => {
+      const traced_event = merge_tracing(event, current2);
       return with_request_store(
         { event: traced_event, state },
         () => handle_remote_call_internal(traced_event, state, options2, manifest, id)
@@ -2620,11 +2279,11 @@ async function handle_remote_call(event, state, options2, manifest, id) {
   });
 }
 async function handle_remote_call_internal(event, state, options2, manifest, id) {
-  const [hash2, name, prerender_args] = id.split("/");
+  const [hash2, name, additional_args] = id.split("/");
   const remotes = manifest._.remotes;
   if (!remotes[hash2]) error(404);
   const module = await remotes[hash2]();
-  const fn = module[name];
+  const fn = module.default[name];
   if (!fn) error(404);
   const info = fn.__;
   const transport = options2.hooks.transport;
@@ -2634,33 +2293,67 @@ async function handle_remote_call_internal(event, state, options2, manifest, id)
   });
   let form_client_refreshes;
   try {
-    if (info.type === "form") {
-      if (!is_form_content_type(event.request)) {
+    if (info.type === "query_batch") {
+      if (event.request.method !== "POST") {
         throw new SvelteKitError(
-          415,
-          "Unsupported Media Type",
-          `Form actions expect form-encoded data — received ${event.request.headers.get(
-            "content-type"
-          )}`
+          405,
+          "Method Not Allowed",
+          `\`query.batch\` functions must be invoked via POST request, not ${event.request.method}`
         );
       }
-      const form_data = await event.request.formData();
-      form_client_refreshes = JSON.parse(
-        /** @type {string} */
-        form_data.get("sveltekit:remote_refreshes") ?? "[]"
+      const { payloads } = await event.request.json();
+      const args = payloads.map((payload2) => parse_remote_arg(payload2, transport));
+      const get_result = await with_request_store({ event, state }, () => info.run(args));
+      const results = await Promise.all(
+        args.map(async (arg, i) => {
+          try {
+            return { type: "result", data: get_result(arg, i) };
+          } catch (error2) {
+            return {
+              type: "error",
+              error: await handle_error_and_jsonify(event, state, options2, error2),
+              status: error2 instanceof HttpError || error2 instanceof SvelteKitError ? error2.status : 500
+            };
+          }
+        })
       );
-      form_data.delete("sveltekit:remote_refreshes");
-      const fn2 = info.fn;
-      const data2 = await with_request_store({ event, state }, () => fn2(form_data));
       return json(
         /** @type {RemoteFunctionResponse} */
         {
           type: "result",
-          result: stringify$1(data2, transport),
-          refreshes: await serialize_refreshes(
-            /** @type {string[]} */
-            form_client_refreshes
-          )
+          result: stringify$1(results, transport)
+        }
+      );
+    }
+    if (info.type === "form") {
+      if (event.request.method !== "POST") {
+        throw new SvelteKitError(
+          405,
+          "Method Not Allowed",
+          `\`form\` functions must be invoked via POST request, not ${event.request.method}`
+        );
+      }
+      if (!is_form_content_type(event.request)) {
+        throw new SvelteKitError(
+          415,
+          "Unsupported Media Type",
+          `\`form\` functions expect form-encoded data — received ${event.request.headers.get(
+            "content-type"
+          )}`
+        );
+      }
+      const { data: data2, meta, form_data } = await deserialize_binary_form(event.request);
+      if (additional_args && !("id" in data2)) {
+        data2.id = JSON.parse(decodeURIComponent(additional_args));
+      }
+      const fn2 = info.fn;
+      const result = await with_request_store({ event, state }, () => fn2(data2, meta, form_data));
+      return json(
+        /** @type {RemoteFunctionResponse} */
+        {
+          type: "result",
+          result: stringify$1(result, transport),
+          refreshes: result.issues ? void 0 : await serialize_refreshes(meta.remote_refreshes)
         }
       );
     }
@@ -2677,7 +2370,7 @@ async function handle_remote_call_internal(event, state, options2, manifest, id)
         }
       );
     }
-    const payload = info.type === "prerender" ? prerender_args : (
+    const payload = info.type === "prerender" ? additional_args : (
       /** @type {string} */
       // new URL(...) necessary because we're hiding the URL from the user in the event object
       new URL(event.request.url).searchParams.get("payload")
@@ -2695,20 +2388,27 @@ async function handle_remote_call_internal(event, state, options2, manifest, id)
     );
   } catch (error2) {
     if (error2 instanceof Redirect) {
-      return json({
-        type: "redirect",
-        location: error2.location,
-        refreshes: await serialize_refreshes(form_client_refreshes ?? [])
-      });
+      return json(
+        /** @type {RemoteFunctionResponse} */
+        {
+          type: "redirect",
+          location: error2.location,
+          refreshes: await serialize_refreshes(form_client_refreshes)
+        }
+      );
     }
+    const status = error2 instanceof HttpError || error2 instanceof SvelteKitError ? error2.status : 500;
     return json(
       /** @type {RemoteFunctionResponse} */
       {
         type: "error",
         error: await handle_error_and_jsonify(event, state, options2, error2),
-        status: error2 instanceof HttpError || error2 instanceof SvelteKitError ? error2.status : 500
+        status
       },
       {
+        // By setting a non-200 during prerendering we fail the prerender process (unless handleHttpError handles it).
+        // Errors at runtime will be passed to the client and are handled there
+        status: state.prerendering ? status : void 0,
         headers: {
           "cache-control": "private, no-store"
         }
@@ -2716,37 +2416,39 @@ async function handle_remote_call_internal(event, state, options2, manifest, id)
     );
   }
   async function serialize_refreshes(client_refreshes) {
-    const refreshes = {
-      ...state.refreshes,
-      ...Object.fromEntries(
+    const refreshes = state.refreshes ?? {};
+    if (client_refreshes) {
+      for (const key2 of client_refreshes) {
+        if (refreshes[key2] !== void 0) continue;
+        const [hash3, name2, payload] = key2.split("/");
+        const loader = manifest._.remotes[hash3];
+        const fn2 = (await loader?.())?.default?.[name2];
+        if (!fn2) error(400, "Bad Request");
+        refreshes[key2] = with_request_store(
+          { event, state },
+          () => fn2(parse_remote_arg(payload, transport))
+        );
+      }
+    }
+    if (Object.keys(refreshes).length === 0) {
+      return void 0;
+    }
+    return stringify$1(
+      Object.fromEntries(
         await Promise.all(
-          client_refreshes.map(async (key2) => {
-            const [hash3, name2, payload] = key2.split("/");
-            const loader = manifest._.remotes[hash3];
-            if (!loader) error(400, "Bad Request");
-            const module2 = await loader();
-            const fn2 = module2[name2];
-            if (!fn2) error(400, "Bad Request");
-            return [
-              key2,
-              await with_request_store(
-                { event, state },
-                () => fn2(parse_remote_arg(payload, transport))
-              )
-            ];
-          })
+          Object.entries(refreshes).map(async ([key2, promise]) => [key2, await promise])
         )
-      )
-    };
-    return Object.keys(refreshes).length > 0 ? stringify$1(refreshes, transport) : void 0;
+      ),
+      transport
+    );
   }
 }
 async function handle_remote_form_post(event, state, manifest, id) {
   return record_span({
     name: "sveltekit.remote.form.post",
     attributes: {},
-    fn: (current) => {
-      const traced_event = merge_tracing(event, current);
+    fn: (current2) => {
+      const traced_event = merge_tracing(event, current2);
       return with_request_store(
         { event: traced_event, state },
         () => handle_remote_form_post_internal(traced_event, state, manifest, id)
@@ -2759,8 +2461,8 @@ async function handle_remote_form_post_internal(event, state, manifest, id) {
   const remotes = manifest._.remotes;
   const module = await remotes[hash2]?.();
   let form = (
-    /** @type {RemoteForm<any>} */
-    module?.[name]
+    /** @type {RemoteForm<any, any>} */
+    module?.default[name]
   );
   if (!form) {
     event.setHeaders({
@@ -2781,13 +2483,16 @@ async function handle_remote_form_post_internal(event, state, manifest, id) {
     form = with_request_store({ event, state }, () => form.for(JSON.parse(action_id)));
   }
   try {
-    const form_data = await event.request.formData();
     const fn = (
       /** @type {RemoteInfo & { type: 'form' }} */
       /** @type {any} */
       form.__.fn
     );
-    await with_request_store({ event, state }, () => fn(form_data));
+    const { data, meta, form_data } = await deserialize_binary_form(event.request);
+    if (action_id && !("id" in data)) {
+      data.id = JSON.parse(decodeURIComponent(action_id));
+    }
+    await with_request_store({ event, state }, () => fn(data, meta, form_data));
     return {
       type: "success",
       status: 200
@@ -2882,11 +2587,14 @@ async function render_page(event, event_state, page, options2, manifest, state, 
         options: options2,
         manifest,
         state,
-        resolve_opts
+        resolve_opts,
+        data_serializer: server_data_serializer(event, event_state, options2)
       });
     }
     const branch = [];
     let load_error = null;
+    const data_serializer = server_data_serializer(event, event_state, options2);
+    const data_serializer_json = state.prerendering && should_prerender_data ? server_data_serializer_json(event, event_state, options2) : null;
     const server_promises = nodes.data.map((node, i) => {
       if (load_error) {
         throw load_error;
@@ -2896,7 +2604,7 @@ async function render_page(event, event_state, page, options2, manifest, state, 
           if (node === leaf_node && action_result?.type === "error") {
             throw action_result.error;
           }
-          return await load_server_data({
+          const server_data = await load_server_data({
             event,
             event_state,
             state,
@@ -2910,6 +2618,11 @@ async function render_page(event, event_state, page, options2, manifest, state, 
               return data;
             }
           });
+          if (node) {
+            data_serializer.add_node(i, server_data);
+          }
+          data_serializer_json?.add_node(i, server_data);
+          return server_data;
         } catch (e) {
           load_error = /** @type {Error} */
           e;
@@ -2982,6 +2695,7 @@ async function render_page(event, event_state, page, options2, manifest, state, 
               const node2 = await manifest._.nodes[index]();
               let j = i;
               while (!branch[j]) j -= 1;
+              data_serializer.set_max_nodes(j + 1);
               const layouts = compact(branch.slice(0, j + 1));
               const nodes2 = new PageNodes(layouts.map((layout) => layout.node));
               return await render_response({
@@ -3002,7 +2716,8 @@ async function render_page(event, event_state, page, options2, manifest, state, 
                   data: null,
                   server_data: null
                 }),
-                fetched
+                fetched,
+                data_serializer
               });
             }
           }
@@ -3012,13 +2727,8 @@ async function render_page(event, event_state, page, options2, manifest, state, 
         branch.push(null);
       }
     }
-    if (state.prerendering && should_prerender_data) {
-      let { data, chunks } = get_data_json(
-        event,
-        event_state,
-        options2,
-        branch.map((node) => node?.server_data)
-      );
+    if (state.prerendering && data_serializer_json) {
+      let { data, chunks } = data_serializer_json.get_data();
       if (chunks) {
         for await (const chunk of chunks) {
           data += chunk;
@@ -3044,7 +2754,8 @@ async function render_page(event, event_state, page, options2, manifest, state, 
       error: null,
       branch: ssr === false ? [] : compact(branch),
       action_result,
-      fetched
+      fetched,
+      data_serializer: ssr === false ? server_data_serializer(event, event_state, options2) : data_serializer
     });
   } catch (e) {
     return await respond_with_error({
@@ -3059,22 +2770,158 @@ async function render_page(event, event_state, page, options2, manifest, state, 
     });
   }
 }
+function once(fn) {
+  let done = false;
+  let result;
+  return () => {
+    if (done) return result;
+    done = true;
+    return result = fn();
+  };
+}
+async function render_data(event, event_state, route, options2, manifest, state, invalidated_data_nodes, trailing_slash) {
+  if (!route.page) {
+    return new Response(void 0, {
+      status: 404
+    });
+  }
+  try {
+    const node_ids = [...route.page.layouts, route.page.leaf];
+    const invalidated = invalidated_data_nodes ?? node_ids.map(() => true);
+    let aborted = false;
+    const url = new URL(event.url);
+    url.pathname = normalize_path(url.pathname, trailing_slash);
+    const new_event = { ...event, url };
+    const functions = node_ids.map((n, i) => {
+      return once(async () => {
+        try {
+          if (aborted) {
+            return (
+              /** @type {import('types').ServerDataSkippedNode} */
+              {
+                type: "skip"
+              }
+            );
+          }
+          const node = n == void 0 ? n : await manifest._.nodes[n]();
+          return load_server_data({
+            event: new_event,
+            event_state,
+            state,
+            node,
+            parent: async () => {
+              const data2 = {};
+              for (let j = 0; j < i; j += 1) {
+                const parent = (
+                  /** @type {import('types').ServerDataNode | null} */
+                  await functions[j]()
+                );
+                if (parent) {
+                  Object.assign(data2, parent.data);
+                }
+              }
+              return data2;
+            }
+          });
+        } catch (e) {
+          aborted = true;
+          throw e;
+        }
+      });
+    });
+    const promises = functions.map(async (fn, i) => {
+      if (!invalidated[i]) {
+        return (
+          /** @type {import('types').ServerDataSkippedNode} */
+          {
+            type: "skip"
+          }
+        );
+      }
+      return fn();
+    });
+    let length = promises.length;
+    const nodes = await Promise.all(
+      promises.map(
+        (p, i) => p.catch(async (error2) => {
+          if (error2 instanceof Redirect) {
+            throw error2;
+          }
+          length = Math.min(length, i + 1);
+          return (
+            /** @type {import('types').ServerErrorNode} */
+            {
+              type: "error",
+              error: await handle_error_and_jsonify(event, event_state, options2, error2),
+              status: error2 instanceof HttpError || error2 instanceof SvelteKitError ? error2.status : void 0
+            }
+          );
+        })
+      )
+    );
+    const data_serializer = server_data_serializer_json(event, event_state, options2);
+    for (let i = 0; i < nodes.length; i++) data_serializer.add_node(i, nodes[i]);
+    const { data, chunks } = data_serializer.get_data();
+    if (!chunks) {
+      return json_response(data);
+    }
+    return new Response(
+      new ReadableStream({
+        async start(controller) {
+          controller.enqueue(text_encoder.encode(data));
+          for await (const chunk of chunks) {
+            controller.enqueue(text_encoder.encode(chunk));
+          }
+          controller.close();
+        },
+        type: "bytes"
+      }),
+      {
+        headers: {
+          // we use a proprietary content type to prevent buffering.
+          // the `text` prefix makes it inspectable
+          "content-type": "text/sveltekit-data",
+          "cache-control": "private, no-store"
+        }
+      }
+    );
+  } catch (e) {
+    const error2 = normalize_error(e);
+    if (error2 instanceof Redirect) {
+      return redirect_json_response(error2);
+    } else {
+      return json_response(await handle_error_and_jsonify(event, event_state, options2, error2), 500);
+    }
+  }
+}
+function json_response(json2, status = 200) {
+  return text(typeof json2 === "string" ? json2 : JSON.stringify(json2), {
+    status,
+    headers: {
+      "content-type": "application/json",
+      "cache-control": "private, no-store"
+    }
+  });
+}
+function redirect_json_response(redirect) {
+  return json_response(
+    /** @type {import('types').ServerRedirectNode} */
+    {
+      type: "redirect",
+      location: redirect.location
+    }
+  );
+}
 var cookie = {};
-/*!
- * cookie
- * Copyright(c) 2012-2014 Roman Shtylman
- * Copyright(c) 2015 Douglas Christopher Wilson
- * MIT Licensed
- */
 var hasRequiredCookie;
 function requireCookie() {
   if (hasRequiredCookie) return cookie;
   hasRequiredCookie = 1;
-  cookie.parse = parse2;
+  cookie.parse = parse;
   cookie.serialize = serialize;
   var __toString = Object.prototype.toString;
   var fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
-  function parse2(str, options2) {
+  function parse(str, options2) {
     if (typeof str !== "string") {
       throw new TypeError("argument str must be a string");
     }
@@ -3382,6 +3229,12 @@ function requireSetCookie() {
     map: false,
     silent: false
   };
+  function isForbiddenKey(key2) {
+    return typeof key2 !== "string" || key2 in {};
+  }
+  function createNullObj() {
+    return /* @__PURE__ */ Object.create(null);
+  }
   function isNonEmptyString(str) {
     return typeof str === "string" && !!str.trim();
   }
@@ -3392,26 +3245,32 @@ function requireSetCookie() {
     var name = parsed.name;
     var value = parsed.value;
     options2 = options2 ? Object.assign({}, defaultParseOptions, options2) : defaultParseOptions;
+    if (isForbiddenKey(name)) {
+      return null;
+    }
     try {
       value = options2.decodeValues ? decodeURIComponent(value) : value;
     } catch (e) {
       console.error(
-        "set-cookie-parser encountered an error while decoding a cookie with value '" + value + "'. Set options.decodeValues to false to disable this feature.",
+        "set-cookie-parser: failed to decode cookie value. Set options.decodeValues=false to disable decoding.",
         e
       );
     }
-    var cookie2 = {
-      name,
-      value
-    };
+    var cookie2 = createNullObj();
+    cookie2.name = name;
+    cookie2.value = value;
     parts.forEach(function(part) {
       var sides = part.split("=");
       var key2 = sides.shift().trimLeft().toLowerCase();
+      if (isForbiddenKey(key2)) {
+        return;
+      }
       var value2 = sides.join("=");
       if (key2 === "expires") {
         cookie2.expires = new Date(value2);
       } else if (key2 === "max-age") {
-        cookie2.maxAge = parseInt(value2, 10);
+        var n = parseInt(value2, 10);
+        if (!Number.isNaN(n)) cookie2.maxAge = n;
       } else if (key2 === "secure") {
         cookie2.secure = true;
       } else if (key2 === "httponly") {
@@ -3420,7 +3279,7 @@ function requireSetCookie() {
         cookie2.sameSite = value2;
       } else if (key2 === "partitioned") {
         cookie2.partitioned = true;
-      } else {
+      } else if (key2) {
         cookie2[key2] = value2;
       }
     });
@@ -3438,13 +3297,13 @@ function requireSetCookie() {
     }
     return { name, value };
   }
-  function parse2(input, options2) {
+  function parse(input, options2) {
     options2 = options2 ? Object.assign({}, defaultParseOptions, options2) : defaultParseOptions;
     if (!input) {
       if (!options2.map) {
         return [];
       } else {
-        return {};
+        return createNullObj();
       }
     }
     if (input.headers) {
@@ -3470,12 +3329,14 @@ function requireSetCookie() {
     if (!options2.map) {
       return input.filter(isNonEmptyString).map(function(str) {
         return parseString(str, options2);
-      });
+      }).filter(Boolean);
     } else {
-      var cookies = {};
+      var cookies = createNullObj();
       return input.filter(isNonEmptyString).reduce(function(cookies2, str) {
         var cookie2 = parseString(str, options2);
-        cookies2[cookie2.name] = cookie2;
+        if (cookie2 && !isForbiddenKey(cookie2.name)) {
+          cookies2[cookie2.name] = cookie2;
+        }
         return cookies2;
       }, cookies);
     }
@@ -3535,8 +3396,8 @@ function requireSetCookie() {
     }
     return cookiesStrings;
   }
-  setCookie.exports = parse2;
-  setCookie.exports.parse = parse2;
+  setCookie.exports = parse;
+  setCookie.exports.parse = parse;
   setCookie.exports.parseString = parseString;
   setCookie.exports.splitCookiesString = splitCookiesString;
   return setCookie.exports;
@@ -3708,21 +3569,23 @@ async function internal_respond(request, options2, manifest, state) {
   const is_route_resolution_request = has_resolution_suffix(url.pathname);
   const is_data_request = has_data_suffix(url.pathname);
   const remote_id = get_remote_id(url);
-  const request_origin = request.headers.get("origin");
-  if (remote_id) {
-    if (request.method !== "GET" && request_origin !== url.origin) {
-      const message = "Cross-site remote requests are forbidden";
-      return json({ message }, { status: 403 });
-    }
-  } else if (options2.csrf_check_origin) {
-    const forbidden = is_form_content_type(request) && (request.method === "POST" || request.method === "PUT" || request.method === "PATCH" || request.method === "DELETE") && request_origin !== url.origin && (!request_origin || !options2.csrf_trusted_origins.includes(request_origin));
-    if (forbidden) {
-      const message = `Cross-site ${request.method} form submissions are forbidden`;
-      const opts = { status: 403 };
-      if (request.headers.get("accept") === "application/json") {
-        return json({ message }, opts);
+  {
+    const request_origin = request.headers.get("origin");
+    if (remote_id) {
+      if (request.method !== "GET" && request_origin !== url.origin) {
+        const message = "Cross-site remote requests are forbidden";
+        return json({ message }, { status: 403 });
       }
-      return text(message, opts);
+    } else if (options2.csrf_check_origin) {
+      const forbidden = is_form_content_type(request) && (request.method === "POST" || request.method === "PUT" || request.method === "PATCH" || request.method === "DELETE") && request_origin !== url.origin && (!request_origin || !options2.csrf_trusted_origins.includes(request_origin));
+      if (forbidden) {
+        const message = `Cross-site ${request.method} form submissions are forbidden`;
+        const opts = { status: 403 };
+        if (request.headers.get("accept") === "application/json") {
+          return json({ message }, opts);
+        }
+        return text(message, opts);
+      }
     }
   }
   if (options2.hash_routing && url.pathname !== base + "/" && url.pathname !== "/[fallback]") {
@@ -3737,8 +3600,8 @@ async function internal_respond(request, options2, manifest, state) {
     invalidated_data_nodes = url.searchParams.get(INVALIDATED_PARAM)?.split("").map((node) => node === "1");
     url.searchParams.delete(INVALIDATED_PARAM);
   } else if (remote_id) {
-    url.pathname = base;
-    url.search = "";
+    url.pathname = request.headers.get("x-sveltekit-pathname") ?? base;
+    url.search = request.headers.get("x-sveltekit-search") ?? "";
   }
   const headers2 = {};
   const { cookies, new_cookies, get_cookie_header, set_internal, set_trailing_slash } = get_cookies(
@@ -3751,7 +3614,8 @@ async function internal_respond(request, options2, manifest, state) {
     handleValidationError: options2.hooks.handleValidationError,
     tracing: {
       record_span
-    }
+    },
+    is_in_remote_function: false
   };
   const event = {
     cookies,
@@ -3776,7 +3640,11 @@ async function internal_respond(request, options2, manifest, state) {
             "Use `event.cookies.set(name, value, options)` instead of `event.setHeaders` to set cookies"
           );
         } else if (lower in headers2) {
-          throw new Error(`"${key2}" header is already set`);
+          if (lower === "server-timing") {
+            headers2[lower] += ", " + value;
+          } else {
+            throw new Error(`"${key2}" header is already set`);
+          }
         } else {
           headers2[lower] = value;
           if (state.prerendering && lower === "cache-control") {
@@ -3824,20 +3692,27 @@ async function internal_respond(request, options2, manifest, state) {
   } catch {
     return text("Malformed URI", { status: 400 });
   }
-  if (resolved_path !== url.pathname && !state.prerendering?.fallback && has_prerendered_path(manifest, resolved_path)) {
+  if (
+    // the resolved path has been decoded so it should be compared to the decoded url pathname
+    resolved_path !== decode_pathname(url.pathname) && !state.prerendering?.fallback && has_prerendered_path(manifest, resolved_path)
+  ) {
     const url2 = new URL(request.url);
     url2.pathname = is_data_request ? add_data_suffix(resolved_path) : is_route_resolution_request ? add_resolution_suffix(resolved_path) : resolved_path;
-    const response = await fetch(url2, request);
-    const headers22 = new Headers(response.headers);
-    if (headers22.has("content-encoding")) {
-      headers22.delete("content-encoding");
-      headers22.delete("content-length");
+    try {
+      const response = await fetch(url2, request);
+      const headers22 = new Headers(response.headers);
+      if (headers22.has("content-encoding")) {
+        headers22.delete("content-encoding");
+        headers22.delete("content-length");
+      }
+      return new Response(response.body, {
+        headers: headers22,
+        status: response.status,
+        statusText: response.statusText
+      });
+    } catch (error2) {
+      return await handle_fatal_error(event, event_state, options2, error2);
     }
-    return new Response(response.body, {
-      headers: headers22,
-      status: response.status,
-      statusText: response.statusText
-    });
   }
   let route = null;
   if (base && !state.prerendering?.fallback) {
@@ -3857,7 +3732,7 @@ async function internal_respond(request, options2, manifest, state) {
     headers22.set("cache-control", "public, max-age=0, must-revalidate");
     return text("Not found", { status: 404, headers: headers22 });
   }
-  if (!state.prerendering?.fallback && !remote_id) {
+  if (!state.prerendering?.fallback) {
     const matchers = await manifest._.matchers();
     for (const candidate of manifest._.routes) {
       const match = candidate.pattern.exec(resolved_path);
@@ -3879,7 +3754,7 @@ async function internal_respond(request, options2, manifest, state) {
   let trailing_slash = "never";
   try {
     const page_nodes = route?.page ? new PageNodes(await load_page_nodes(route.page, manifest)) : void 0;
-    if (route) {
+    if (route && !remote_id) {
       if (url.pathname === base || url.pathname === base + "/") {
         trailing_slash = "always";
       } else if (page_nodes) {
@@ -4029,7 +3904,7 @@ async function internal_respond(request, options2, manifest, state) {
     return response;
   } catch (e) {
     if (e instanceof Redirect) {
-      const response = is_data_request ? redirect_json_response(e) : route?.page && is_action_json_request(event) ? action_json_redirect(e) : redirect_response(e.status, e.location);
+      const response = is_data_request || remote_id ? redirect_json_response(e) : route?.page && is_action_json_request(event) ? action_json_redirect(e) : redirect_response(e.status, e.location);
       add_cookies_to_headers(response.headers, new_cookies.values());
       return response;
     }
@@ -4056,7 +3931,8 @@ async function internal_respond(request, options2, manifest, state) {
           error: null,
           branch: [],
           fetched: [],
-          resolve_opts
+          resolve_opts,
+          data_serializer: server_data_serializer(event2, event_state, options2)
         });
       }
       if (remote_id) {
@@ -4200,6 +4076,7 @@ function filter_env(env, allowed, disallowed) {
 function set_app(value) {
 }
 let init_promise;
+let current = null;
 class Server {
   /** @type {import('types').SSROptions} */
   #options;
@@ -4209,6 +4086,19 @@ class Server {
   constructor(manifest) {
     this.#options = options;
     this.#manifest = manifest;
+    if (IN_WEBCONTAINER) {
+      const respond2 = this.respond.bind(this);
+      this.respond = async (...args) => {
+        const { promise, resolve: resolve2 } = (
+          /** @type {PromiseWithResolvers<void>} */
+          with_resolvers()
+        );
+        const previous = current;
+        current = promise;
+        await previous;
+        return respond2(...args).finally(resolve2);
+      };
+    }
   }
   /**
    * @param {import('@sveltejs/kit').ServerInitOptions} opts

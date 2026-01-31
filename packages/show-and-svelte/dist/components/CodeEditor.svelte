@@ -1,20 +1,29 @@
 <script lang="ts">
    import CodeInput from "../code-input/CodeInput.svelte";
+   import CodeLines from "./CodeLines.svelte"
    import { createAutoCloseBracketsPlugin } from "../code-input/auto-close-brackets.js";
    import { createIndentPlugin } from "../code-input/indent.js";
    import { getHljsContext } from "../contexts/hljs.js";
 
    let {
       code = $bindable(),
+      rows = 5,
       language,
+      indentSize = 3,
       placeholder = "",
+      callback = () => {}
    }: {
       code: string;
+      rows?: number;
       language?: string;
+      indentSize?: number;
       placeholder?: string;
+      callback?: (lines: string[], index: number) => void
    } = $props();
 
    const hljs = getHljsContext();
+   const lines = $derived(code.split('\n').map(l => l.trim()))
+   let activeLineIndex = $state(-1)
 
    // Create plugins using TypeScript functions
    const plugins = $derived(() => {
@@ -32,7 +41,7 @@
       // Indent plugin
       pluginList.push(createIndentPlugin(
          true,  // useSpaces
-         2,     // indentSize
+         indentSize,     // indentSize
          { '(': ')', '[': ']', '{': '}' }  // bracketPairs
       ));
 
@@ -62,6 +71,10 @@
    function handleKeydown(event: KeyboardEvent) {
       event.stopPropagation();
    }
+
+   $effect(() => {
+      callback(lines, activeLineIndex)
+   })
 </script>
 
 {#if hljs}
@@ -73,7 +86,9 @@
       plugins={plugins()}
       oninput={handleInput}
       onkeydown={handleKeydown}
-   />
+      {rows}>
+      <CodeLines numLines={rows} activeCallback={(index: number) => activeLineIndex = index} {activeLineIndex} />
+   </CodeInput>
 {:else}
    <div class="loading-placeholder">CodeEditor requires hljs object.</div>
 {/if}

@@ -24,12 +24,13 @@ export function slideLock(unlock, prev, next) {
             return connected && inRealDOM;
         }
         function handleKeydown(event) {
+            let unlock = false;
+            if (event.code === "ArrowLeft" || event.code === "KeyA")
+                unlock = prev();
+            if (event.code === "ArrowRight" || event.code === "KeyD")
+                unlock = next();
             if (!unlock)
                 event.stopPropagation();
-            if (event.code === "ArrowLeft" || event.code === "KeyA")
-                return prev();
-            if (event.code === "ArrowRight" || event.code === "KeyD")
-                return next();
         }
         function updateActiveState() {
             const newActive = checkIfActive();
