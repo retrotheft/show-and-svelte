@@ -1,0 +1,1 @@
+export { default as component } from "../../../../src/routes/tutorial-0.0.3/+page.svelte";

@@ -1,0 +1,15 @@
+{
+	"/": [
+		"src/routes/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/presentations/create-raw-snippet": [
+		"src/routes/+layout.ts"
+	],
+	"/presentations/magic-move": [
+		"src/routes/+layout.ts"
+	],
+	"/tutorial-0.0.3": [
+		"src/routes/+layout.ts"
+	]
+}

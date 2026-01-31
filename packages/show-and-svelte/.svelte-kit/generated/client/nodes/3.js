@@ -1,0 +1,1 @@
+export { default as component } from "../../../../src/routes/presentations/create-raw-snippet/+page.svelte";

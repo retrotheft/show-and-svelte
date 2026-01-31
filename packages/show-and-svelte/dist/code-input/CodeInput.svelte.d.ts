@@ -1,0 +1,34 @@
+type Props = {
+    value?: string;
+    placeholder?: string;
+    language?: string;
+    template?: string;
+    readonly?: boolean;
+    disabled?: boolean;
+    autofocus?: boolean;
+    maxlength?: number;
+    minlength?: number;
+    rows?: number;
+    cols?: number;
+    name?: string;
+    form?: string;
+    required?: boolean;
+    spellcheck?: boolean;
+    wrap?: 'hard' | 'soft';
+    autocomplete?: string;
+    autocorrect?: 'on' | 'off';
+    pattern?: string;
+    highlighter?: (code: string, language?: string) => string;
+    plugins?: Array<{
+        beforeInput?: (event: InputEvent, textarea: HTMLTextAreaElement) => void;
+        keydown?: (event: KeyboardEvent, textarea: HTMLTextAreaElement) => void;
+        afterHighlight?: (pre: HTMLPreElement, textarea: HTMLTextAreaElement) => void;
+    }>;
+    oninput?: (event: Event) => void;
+    onkeydown?: (event: KeyboardEvent) => void;
+    onchange?: (event: Event) => void;
+    oninvalid?: (event: Event) => void;
+};
+declare const CodeInput: import("svelte").Component<Props, {}, "value">;
+type CodeInput = ReturnType<typeof CodeInput>;
+export default CodeInput;
