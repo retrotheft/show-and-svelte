@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
      "dev": "pnpm -F show-and-svelte run dev",
+     "dev:view": "pnpm -F presentation-viewer run dev",
      "dev:crs": "pnpm -F create-raw-snippet run dev",
      "build": "pnpm -F show-and-svelte run build"
   },

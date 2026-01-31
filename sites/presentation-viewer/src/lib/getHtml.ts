@@ -1,0 +1,31 @@
+export const getHtml = (baseUrl: string) => `
+   <!DOCTYPE html>
+       <html lang="en">
+       <head>
+         <meta charset="UTF-8">
+         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <link rel="stylesheet" href="${baseUrl}/bundle.css">
+         <script type="module" src="${baseUrl}/bundle.js"></script>
+       </head>
+       <body>
+         <div id="app"></div>
+       </body>
+       </html>
+`
+
+// export const getHtml = (jsUrl: string, cssUrl: string) => `
+//    <!doctype html>
+//    <html lang="en">
+//      <head>
+//        <meta charset="UTF-8" />
+//        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+//        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+//        <title>create-raw-snippet</title>
+//        <script type="module" src="${jsUrl}"></script>
+//        <link rel="stylesheet" href="${cssUrl}">
+//      </head>
+//      <body>
+//        <div id="app"></div>
+//      </body>
+//    </html>
+// `
